@@ -8,6 +8,8 @@ import { Login } from './pages/Auth/Login';
 import { Signup } from './pages/Auth/Signup';
 import { ForgotPassword } from './pages/Auth/ForgotPassword';
 import { Dashboard } from './pages/Dashboard/Dashboard';
+import { ProjectsList } from './pages/Projects/ProjectsList';
+import { ProjectDetails } from './pages/Projects/ProjectDetails';
 import { Toaster } from './components/ui/sonner';
 
 const router = createBrowserRouter([
@@ -36,7 +38,11 @@ const router = createBrowserRouter([
           },
           {
             path: '/projects',
-            element: <div className="p-8">Projects Page</div>,
+            element: <ProjectsList />,
+          },
+          {
+            path: '/projects/:id',
+            element: <ProjectDetails />,
           },
           {
             path: '/tasks',
