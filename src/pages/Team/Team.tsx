@@ -3,10 +3,12 @@ import { useWorkspace } from '../../store/useWorkspace';
 import { Button } from '../../components/ui/button';
 import { Plus, Mail, Trash2 } from 'lucide-react';
 import { InviteMemberModal } from './InviteMemberModal';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '../../components/ui/dialog';
 
 export function Team() {
   const { members, removeMember } = useWorkspace();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [memberToDelete, setMemberToDelete] = useState<string | null>(null);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -63,7 +65,7 @@ export function Team() {
                 variant="outline" 
                 size="sm" 
                 className="w-8 h-8 p-0 text-red-500 hover:text-red-700 hover:bg-red-50 border-slate-200 hover:border-red-200 shrink-0"
-                onClick={() => removeMember(member.id)}
+                onClick={() => setMemberToDelete(member.id)}
               >
                 <Trash2 className="w-3.5 h-3.5" />
               </Button>
@@ -73,6 +75,34 @@ export function Team() {
       </div>
 
       <InviteMemberModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+
+      <Dialog open={!!memberToDelete} onOpenChange={(open) => !open && setMemberToDelete(null)}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle className="text-red-600 flex items-center gap-2">
+              <Trash2 className="w-5 h-5" />
+              Remove Team Member
+            </DialogTitle>
+            <DialogDescription>
+              Are you sure you want to remove this member from the workspace? They will lose access to all projects and tasks.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="mt-4">
+            <Button variant="outline" onClick={() => setMemberToDelete(null)}>Cancel</Button>
+            <Button 
+              className="bg-red-600 hover:bg-red-700 text-white" 
+              onClick={() => {
+                if (memberToDelete) {
+                  removeMember(memberToDelete);
+                  setMemberToDelete(null);
+                }
+              }}
+            >
+              Remove Member
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -2,9 +2,11 @@ import { DashboardMetrics } from './DashboardMetrics';
 import { DashboardCharts } from './DashboardCharts';
 import { DashboardFeed } from './DashboardFeed';
 import { useAuth } from '../../store/useAuth';
+import { useState } from 'react';
 
 export function Dashboard() {
   const { user } = useAuth();
+  const [period, setPeriod] = useState<'today' | 'week' | 'month'>('week');
 
   return (
     <div className="flex flex-col gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-8">
@@ -17,7 +19,15 @@ export function Dashboard() {
           <p className="text-sm text-slate-500 mt-1">Here's what's happening in your workspace today.</p>
         </div>
         <div className="flex gap-2">
-          {/* Action buttons could go here */}
+          <select 
+            value={period}
+            onChange={(e) => setPeriod(e.target.value as any)}
+            className="h-9 rounded-md border border-slate-200 bg-white px-3 text-sm text-slate-700 outline-none focus:border-[var(--primary)] focus:ring-1 focus:ring-[var(--primary)] transition-all shadow-sm"
+          >
+            <option value="today">Today</option>
+            <option value="week">This Week</option>
+            <option value="month">This Month</option>
+          </select>
         </div>
       </div>
 
@@ -28,7 +38,7 @@ export function Dashboard() {
       <DashboardCharts />
 
       {/* Feeds Section */}
-      <DashboardFeed />
+      <DashboardFeed period={period} />
     </div>
   );
 }

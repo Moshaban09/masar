@@ -4,16 +4,20 @@ import { useWorkspace } from '../../store/useWorkspace';
 import type { Task } from '../../types';
 import { Button } from '../../components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/tabs';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from '../../components/ui/dialog';
 import { Badge } from '../../components/ui/badge';
-import { ArrowLeft, CalendarDays, Plus } from 'lucide-react';
+import { ArrowLeft, CalendarDays, Plus, AlertTriangle } from 'lucide-react';
 import { NewTaskModal } from '../Tasks/NewTaskModal';
+import { TaskDetailsModal } from '../Tasks/TaskDetailsModal';
 
 export function ProjectDetails() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { projects, tasks, toggleTaskStatus, members } = useWorkspace();
+  const { projects, tasks, toggleTaskStatus, members, deleteProject } = useWorkspace();
   const [isNewTaskModalOpen, setIsNewTaskModalOpen] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [taskToEdit, setTaskToEdit] = useState<Task | null>(null);
+  const [taskToView, setTaskToView] = useState<Task | null>(null);
 
   const project = projects.find((p) => p.id === id);
   const projectTasks = tasks.filter((t) => t.projectId === id);
@@ -44,10 +48,15 @@ export function ProjectDetails() {
           <ArrowLeft className="w-4 h-4 mr-1.5" />
           Back to Projects
         </Link>
-        <Button size="sm" className="h-8 bg-[var(--primary)] text-white hover:opacity-90" onClick={() => setIsNewTaskModalOpen(true)}>
-          <Plus className="w-4 h-4 mr-1.5" />
-          Add Task
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm" className="h-8 text-xs font-medium border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700" onClick={() => setShowDeleteConfirm(true)}>
+            Delete Project
+          </Button>
+          <Button size="sm" className="h-8 bg-[var(--primary)] text-white hover:opacity-90" onClick={() => setIsNewTaskModalOpen(true)}>
+            <Plus className="w-4 h-4 mr-1.5" />
+            Add Task
+          </Button>
+        </div>
       </div>
 
       {/* Header Info */}
@@ -99,7 +108,7 @@ export function ProjectDetails() {
                      <div 
                        key={task.id} 
                        className={`flex items-center justify-between p-4 hover:bg-slate-50 transition-colors cursor-pointer group border-l-4 ${styles.border}`}
-                       onClick={() => setTaskToEdit(task)}
+                       onClick={() => setTaskToView(task)}
                      >
                        <div className="flex items-center gap-3 flex-1">
                          <input 
@@ -160,6 +169,42 @@ export function ProjectDetails() {
         initialProjectId={project.id}
         taskToEdit={taskToEdit}
       />
+      
+      <TaskDetailsModal 
+        isOpen={!!taskToView} 
+        onClose={() => setTaskToView(null)} 
+        task={taskToView}
+        onEdit={() => {
+          setTaskToEdit(taskToView);
+          setTaskToView(null);
+        }}
+      />
+
+      <Dialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
+        <DialogContent className="sm:max-w-[400px]">
+          <DialogHeader>
+            <div className="flex items-center gap-3 text-red-600 mb-2">
+              <AlertTriangle className="w-5 h-5" />
+              <DialogTitle>Delete Project</DialogTitle>
+            </div>
+            <DialogDescription>
+              Are you sure you want to delete <strong>{project.name}</strong>? This action cannot be undone and will permanently delete all tasks associated with this project.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="mt-6 flex gap-2 justify-end">
+            <DialogClose asChild>
+              <Button variant="outline">Cancel</Button>
+            </DialogClose>
+            <Button variant="destructive" onClick={() => {
+              deleteProject(project.id);
+              setShowDeleteConfirm(false);
+              navigate('/projects');
+            }}>
+              Yes, delete project
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

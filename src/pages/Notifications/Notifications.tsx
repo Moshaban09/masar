@@ -1,5 +1,6 @@
 import { useWorkspace } from '../../store/useWorkspace';
 import { Bell, Clock, CalendarDays, UserPlus } from 'lucide-react';
+import { formatRelativeTime } from '../../lib/dateUtils';
 
 export function Notifications() {
   const { notifications, markNotificationRead } = useWorkspace();
@@ -39,7 +40,7 @@ export function Notifications() {
                 </h4>
                 <div className="flex items-center gap-1 text-[10px] text-slate-400 font-medium whitespace-nowrap">
                   <Clock className="w-3 h-3" />
-                  {notification.time}
+                  {formatRelativeTime(notification.time)}
                 </div>
               </div>
               <p className="text-sm text-slate-500 mt-1">{notification.body}</p>

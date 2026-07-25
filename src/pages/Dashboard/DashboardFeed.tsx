@@ -2,13 +2,29 @@ import { useWorkspace } from '../../store/useWorkspace';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Badge } from '../../components/ui/badge';
 import { CheckCircle2, Clock, MessageSquare, Plus, Edit } from 'lucide-react';
+import { formatRelativeTime } from '../../lib/dateUtils';
+import { isAfter, subDays, startOfDay, subMonths } from 'date-fns';
 
-export function DashboardFeed() {
+export function DashboardFeed({ period = 'week' }: { period?: 'today' | 'week' | 'month' }) {
   const { activities, tasks } = useWorkspace();
   
-  // Get upcoming deadlines (tasks not done, sorted by date - mock implementation just grabs first 3)
   const upcomingTasks = tasks.filter(t => t.status !== 'done').slice(0, 3);
-  const recentActivities = activities.slice(0, 5);
+  
+  const filteredActivities = activities.filter(activity => {
+    try {
+      const date = new Date(activity.time);
+      if (isNaN(date.getTime())) return true;
+      const now = new Date();
+      if (period === 'today') return isAfter(date, startOfDay(now));
+      if (period === 'week') return isAfter(date, subDays(now, 7));
+      if (period === 'month') return isAfter(date, subMonths(now, 1));
+      return true;
+    } catch {
+      return true;
+    }
+  });
+
+  const recentActivities = filteredActivities.slice(0, 5);
 
   const getActivityIcon = (type: string) => {
     switch (type) {
@@ -78,7 +94,7 @@ export function DashboardFeed() {
                   <p className="text-sm text-slate-900">
                     <span className="font-semibold">{activity.member}</span> {activity.action} <span className="font-semibold">{activity.target}</span>
                   </p>
-                  <p className="text-xs text-slate-500 mt-1">{activity.time}</p>
+                  <p className="text-xs text-slate-500 mt-1">{formatRelativeTime(activity.time)}</p>
                 </div>
               </div>
             ))}

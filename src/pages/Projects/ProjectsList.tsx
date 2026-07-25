@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { useWorkspace } from '../../store/useWorkspace';
 import { Button } from '../../components/ui/button';
-import { Plus, LayoutGrid, List as ListIcon } from 'lucide-react';
+import { Plus, LayoutGrid, List as ListIcon, FolderKanban } from 'lucide-react';
 import { ProjectCard } from './ProjectCard';
 import { NewProjectModal } from './NewProjectModal';
+import { EmptyState } from '../../components/ui/EmptyState';
 
 export function ProjectsList() {
   const { projects } = useWorkspace();
@@ -48,8 +49,14 @@ export function ProjectsList() {
             <ProjectCard key={project.id} project={project} />
           ))}
           {projects.length === 0 && (
-            <div className="col-span-full py-12 text-center text-slate-500">
-              No projects found. Create one to get started!
+            <div className="col-span-full">
+              <EmptyState
+                icon={FolderKanban}
+                title="No projects yet"
+                description="Get started by creating your first project to organize your team's work."
+                actionLabel="Create Project"
+                onAction={() => setIsModalOpen(true)}
+              />
             </div>
           )}
         </div>
@@ -57,6 +64,15 @@ export function ProjectsList() {
 
       {/* List View (Simplified placeholder for Table) */}
       {view === 'list' && (
+        projects.length === 0 ? (
+          <EmptyState
+            icon={FolderKanban}
+            title="No projects yet"
+            description="Get started by creating your first project to organize your team's work."
+            actionLabel="Create Project"
+            onAction={() => setIsModalOpen(true)}
+          />
+        ) : (
         <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-sm text-left">
@@ -90,6 +106,7 @@ export function ProjectsList() {
             </table>
           </div>
         </div>
+        )
       )}
 
       <NewProjectModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
