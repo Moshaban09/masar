@@ -7,6 +7,7 @@ import { Plus, LayoutGrid, List as ListIcon, Search } from 'lucide-react';
 import { TasksList } from './TasksList';
 import { TasksKanban } from './TasksKanban';
 import { NewTaskModal } from './NewTaskModal';
+import { TaskDetailsModal } from './TaskDetailsModal';
 
 export function Tasks() {
   const { tasks } = useWorkspace();
@@ -14,13 +15,14 @@ export function Tasks() {
   const [searchQuery, setSearchQuery] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [taskToEdit, setTaskToEdit] = useState<Task | null>(null);
+  const [taskToView, setTaskToView] = useState<Task | null>(null);
 
   const filteredTasks = tasks.filter(t => 
     t.title.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
-    <div className="flex flex-col gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-8 h-full">
+    <div className="flex flex-col gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500 h-full">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
@@ -64,9 +66,9 @@ export function Tasks() {
       {/* Main Content Area */}
       <div className="flex-1 min-h-0">
         {view === 'kanban' ? (
-          <TasksKanban tasks={filteredTasks} onEdit={setTaskToEdit} />
+          <TasksKanban tasks={filteredTasks} onEdit={setTaskToEdit} onView={setTaskToView} />
         ) : (
-          <TasksList tasks={filteredTasks} onEdit={setTaskToEdit} />
+          <TasksList tasks={filteredTasks} onEdit={setTaskToEdit} onView={setTaskToView} />
         )}
       </div>
 
@@ -74,6 +76,12 @@ export function Tasks() {
         isOpen={isModalOpen || !!taskToEdit} 
         onClose={() => { setIsModalOpen(false); setTaskToEdit(null); }} 
         taskToEdit={taskToEdit}
+      />
+      <TaskDetailsModal 
+        isOpen={!!taskToView} 
+        onClose={() => setTaskToView(null)} 
+        task={taskToView}
+        onEdit={() => setTaskToEdit(taskToView)}
       />
     </div>
   );

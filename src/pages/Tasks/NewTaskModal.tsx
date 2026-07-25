@@ -10,7 +10,7 @@ import type { Task } from '../../types';
 
 const schema = z.object({
   title: z.string().min(3, 'Title must be at least 3 characters'),
-  projectId: z.string().min(1, 'Please select a project'),
+  projectId: z.string().optional(),
   priority: z.enum(['low', 'medium', 'high', 'urgent']),
   dueDate: z.string().min(1, 'Due date is required'),
   assignee: z.string().optional(),
@@ -63,7 +63,8 @@ export function NewTaskModal({ isOpen, onClose, initialProjectId, taskToEdit }: 
       const p = projects.find(proj => proj.id === data.projectId);
       addTask({
         ...data,
-        project: p?.name || 'Unknown Project',
+        projectId: data.projectId || '',
+        project: p?.name || 'General Task',
         status: 'todo',
         assignee: data.assignee || 'm1',
         workspaceId: activeWorkspaceId,
@@ -96,17 +97,16 @@ export function NewTaskModal({ isOpen, onClose, initialProjectId, taskToEdit }: 
           </div>
 
           <div className="flex flex-col gap-2">
-            <label className="text-sm font-medium text-slate-700">Project</label>
+            <label className="text-sm font-medium text-slate-700">Project (Optional)</label>
             <select
               {...register('projectId')}
-              className={`h-10 rounded-md border ${errors.projectId ? 'border-red-500 focus:ring-red-500/20' : 'border-slate-200 focus:ring-[var(--primary)]/20 focus:border-[var(--primary)]'} px-3 text-sm focus:outline-none focus:ring-2 bg-white`}
+              className="h-10 rounded-md border border-slate-200 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/20 focus:border-[var(--primary)] bg-white"
             >
-              <option value="">Select a project</option>
+              <option value="">No Project (General Task)</option>
               {projects.map(p => (
                 <option key={p.id} value={p.id}>{p.name}</option>
               ))}
             </select>
-            {errors.projectId && <p className="text-xs text-red-500">{errors.projectId.message}</p>}
           </div>
 
           <div className="flex flex-col gap-2">

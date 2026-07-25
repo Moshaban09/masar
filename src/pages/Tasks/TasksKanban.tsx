@@ -18,6 +18,7 @@ import { KanbanCard } from './KanbanCard';
 interface Props {
   tasks: Task[];
   onEdit?: (task: Task) => void;
+  onView?: (task: Task) => void;
 }
 
 const COLUMNS: { id: TaskStatus; title: string; color: string }[] = [
@@ -27,7 +28,7 @@ const COLUMNS: { id: TaskStatus; title: string; color: string }[] = [
   { id: 'done', title: 'Done', color: 'bg-emerald-50' },
 ];
 
-export function TasksKanban({ tasks, onEdit }: Props) {
+export function TasksKanban({ tasks, onEdit, onView }: Props) {
   const { updateTaskStatus, reorderTask } = useWorkspace();
   const [activeTask, setActiveTask] = useState<Task | null>(null);
 
@@ -73,14 +74,14 @@ export function TasksKanban({ tasks, onEdit }: Props) {
   };
 
   return (
-    <div className="h-[calc(100vh-140px)] overflow-x-auto overflow-y-hidden pb-4">
+    <div className="h-full overflow-x-auto overflow-y-hidden pb-4">
       <DndContext 
         sensors={sensors} 
         collisionDetection={closestCorners} 
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
       >
-        <div className="flex gap-6 h-full min-w-max items-start">
+        <div className="flex gap-4 md:gap-6 w-full h-full items-start">
           {COLUMNS.map(column => {
             const columnTasks = tasks.filter(t => t.status === column.id);
             return (
@@ -91,6 +92,7 @@ export function TasksKanban({ tasks, onEdit }: Props) {
                 color={column.color} 
                 tasks={columnTasks} 
                 onEdit={onEdit}
+                onView={onView}
               />
             );
           })}

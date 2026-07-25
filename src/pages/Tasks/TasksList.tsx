@@ -2,13 +2,16 @@ import type { Task } from '../../types';
 import { Badge } from '../../components/ui/badge';
 import { Checkbox } from '../../components/ui/checkbox';
 import { useWorkspace } from '../../store/useWorkspace';
+import { CheckSquare, MessageSquare } from 'lucide-react';
+import { EmptyState } from '../../components/ui/EmptyState';
 
 interface Props {
   tasks: Task[];
   onEdit?: (task: Task) => void;
+  onView?: (task: Task) => void;
 }
 
-export function TasksList({ tasks, onEdit }: Props) {
+export function TasksList({ tasks, onView }: Props) {
   const { toggleTaskStatus, members } = useWorkspace();
 
   const getPriorityColor = (priority: string) => {
@@ -26,7 +29,7 @@ export function TasksList({ tasks, onEdit }: Props) {
 
   return (
     <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden h-full">
-      <div className="overflow-x-auto h-full">
+      <div className="overflow-auto h-full">
         <table className="w-full text-sm text-left">
           <thead className="text-xs text-slate-500 bg-slate-50 border-b border-slate-200 uppercase sticky top-0">
             <tr>
@@ -41,7 +44,7 @@ export function TasksList({ tasks, onEdit }: Props) {
           </thead>
           <tbody className="divide-y divide-slate-200">
             {tasks.map(t => (
-              <tr key={t.id} className="hover:bg-slate-50 transition-colors group cursor-pointer" onClick={() => onEdit?.(t)}>
+              <tr key={t.id} className="hover:bg-slate-50 transition-colors group cursor-pointer" onClick={() => onView?.(t)}>
                 <td className="px-6 py-4" onClick={(e) => e.stopPropagation()}>
                   <Checkbox 
                     checked={t.status === 'done'} 
@@ -49,8 +52,26 @@ export function TasksList({ tasks, onEdit }: Props) {
                   />
                 </td>
                 <td className="px-6 py-4 font-medium text-slate-900">
-                  <div className={`line-clamp-1 ${t.status === 'done' ? 'text-slate-400 line-through' : ''}`}>
-                    {t.title}
+                  <div className="flex flex-col gap-1.5">
+                    <div className={`line-clamp-1 ${t.status === 'done' ? 'text-slate-400 line-through' : ''}`}>
+                      {t.title}
+                    </div>
+                    {(t.subTasks?.length > 0 || t.comments?.length > 0) && (
+                      <div className="flex items-center gap-3">
+                        {t.subTasks && t.subTasks.length > 0 && (
+                          <div className="flex items-center gap-1 text-[10px] text-slate-500 font-medium" title="Subtasks">
+                            <CheckSquare className="w-3 h-3" />
+                            {t.subTasks.filter(st => st.done).length}/{t.subTasks.length}
+                          </div>
+                        )}
+                        {t.comments && t.comments.length > 0 && (
+                          <div className="flex items-center gap-1 text-[10px] text-slate-500 font-medium" title="Comments">
+                            <MessageSquare className="w-3 h-3" />
+                            {t.comments.length}
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
                 </td>
                 <td className="px-6 py-4 capitalize text-slate-600">
@@ -85,8 +106,12 @@ export function TasksList({ tasks, onEdit }: Props) {
             ))}
             {tasks.length === 0 && (
               <tr>
-                <td colSpan={7} className="py-12 text-center text-slate-500">
-                  No tasks found.
+                <td colSpan={7}>
+                  <EmptyState
+                    icon={CheckSquare}
+                    title="No tasks yet"
+                    description="You haven't created any tasks matching this criteria."
+                  />
                 </td>
               </tr>
             )}

@@ -2,15 +2,16 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import type { Task } from '../../types';
 import { Badge } from '../../components/ui/badge';
-import { Clock, Edit2 } from 'lucide-react';
+import { Clock, Edit2, CheckSquare, MessageSquare } from 'lucide-react';
 import { useWorkspace } from '../../store/useWorkspace';
 
 interface Props {
   task: Task;
   onEdit?: (task: Task) => void;
+  onView?: (task: Task) => void;
 }
 
-export function KanbanCard({ task, onEdit }: Props) {
+export function KanbanCard({ task, onEdit, onView }: Props) {
   const { members } = useWorkspace();
   const assignee = members.find(m => m.id === task.assignee);
 
@@ -44,6 +45,7 @@ export function KanbanCard({ task, onEdit }: Props) {
       style={style}
       {...attributes}
       {...listeners}
+      onClick={() => onView?.(task)}
       className="bg-white p-3 rounded-lg shadow-sm border border-slate-200 hover:border-[var(--primary)] hover:shadow-md cursor-grab active:cursor-grabbing group mb-3 flex flex-col gap-2 transition-colors relative z-10"
     >
       <div className="flex justify-between items-start gap-2 relative">
@@ -61,11 +63,33 @@ export function KanbanCard({ task, onEdit }: Props) {
       </div>
       <p className="text-xs text-slate-500 line-clamp-1">{task.project}</p>
       
-      <div className="flex justify-between items-center mt-2 pt-2 border-t border-slate-100">
-        <Badge variant="outline" className={`text-[9px] uppercase px-1.5 py-0 rounded ${getPriorityColor(task.priority)}`}>
-          {task.priority}
-        </Badge>
-        <div className="flex items-center gap-2">
+      <div className="flex justify-between items-center mt-3 pt-3 border-t border-slate-100">
+        <div className="flex items-center gap-3">
+          <Badge variant="outline" className={`text-[9px] uppercase px-1.5 py-0 rounded ${getPriorityColor(task.priority)} shrink-0`}>
+            {task.priority}
+          </Badge>
+          
+          <div className="flex items-center gap-2">
+            {task.subTasks && task.subTasks.length > 0 && (
+              <div className="flex items-center gap-1 text-[10px] text-slate-500 font-medium" title="Subtasks">
+                <CheckSquare className="w-3 h-3" />
+                {task.subTasks.filter(st => st.done).length}/{task.subTasks.length}
+              </div>
+            )}
+            {task.comments && task.comments.length > 0 && (
+              <div className="flex items-center gap-1 text-[10px] text-slate-500 font-medium" title="Comments">
+                <MessageSquare className="w-3 h-3" />
+                {task.comments.length}
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2 shrink-0">
+          <div className="flex items-center gap-1 text-[10px] text-slate-500 font-medium bg-slate-50 px-1.5 py-0.5 rounded-md border border-slate-100">
+            <Clock className="w-3 h-3" />
+            {new Date(task.dueDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+          </div>
           {assignee && (
             <img 
               src={assignee.avatar} 
@@ -74,10 +98,6 @@ export function KanbanCard({ task, onEdit }: Props) {
               title={`Assigned to ${assignee.name}`}
             />
           )}
-          <div className="flex items-center gap-1 text-[10px] text-slate-500 font-medium">
-            <Clock className="w-3 h-3" />
-            {new Date(task.dueDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-          </div>
         </div>
       </div>
     </div>
