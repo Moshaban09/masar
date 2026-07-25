@@ -9,13 +9,13 @@ import {
   CommandSeparator,
 } from "./ui/command"
 import { useNavigate } from "react-router-dom"
-import { useTheme } from "./ThemeProvider"
-import { Home, Briefcase, CheckSquare, Users, Calendar, Bell, Settings, Moon, Sun, Laptop } from "lucide-react"
+import { Home, Briefcase, CheckSquare, Users, Calendar, Bell, Settings, CheckCircle2, LayoutGrid } from "lucide-react"
+import { useWorkspace } from "../store/useWorkspace"
 
 export function CommandPalette() {
   const [open, setOpen] = useState(false)
   const navigate = useNavigate()
-  const { setTheme } = useTheme()
+  const { projects, tasks, members } = useWorkspace()
 
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
@@ -35,7 +35,7 @@ export function CommandPalette() {
 
   return (
     <CommandDialog open={open} onOpenChange={setOpen}>
-      <CommandInput placeholder="Type a command or search..." />
+      <CommandInput placeholder="Type a command or search... (Cmd/Ctrl + K)" />
       <CommandList>
         <CommandEmpty>No results found.</CommandEmpty>
         <CommandGroup heading="Navigation">
@@ -69,18 +69,39 @@ export function CommandPalette() {
           </CommandItem>
         </CommandGroup>
         <CommandSeparator />
-        <CommandGroup heading="Theme">
-          <CommandItem onSelect={() => runCommand(() => setTheme("light"))}>
-            <Sun className="mr-2 h-4 w-4 text-slate-500" />
-            <span>Light Mode</span>
-          </CommandItem>
-          <CommandItem onSelect={() => runCommand(() => setTheme("dark"))}>
-            <Moon className="mr-2 h-4 w-4 text-slate-500" />
-            <span>Dark Mode</span>
-          </CommandItem>
-          <CommandItem onSelect={() => runCommand(() => setTheme("system"))}>
-            <Laptop className="mr-2 h-4 w-4 text-slate-500" />
-            <span>System Default</span>
+        
+        <CommandGroup heading="Projects">
+          {projects.map(p => (
+            <CommandItem key={p.id} onSelect={() => runCommand(() => navigate(`/projects/${p.id}`))}>
+              <LayoutGrid className="mr-2 h-4 w-4 text-[var(--primary)]" />
+              <span>{p.name}</span>
+            </CommandItem>
+          ))}
+        </CommandGroup>
+
+        <CommandGroup heading="Recent Tasks">
+          {tasks.slice(0, 5).map(t => (
+            <CommandItem key={t.id} onSelect={() => runCommand(() => navigate(`/tasks`))}>
+              <CheckCircle2 className={`mr-2 h-4 w-4 ${t.status === 'done' ? 'text-green-500' : 'text-slate-400'}`} />
+              <span className={t.status === 'done' ? 'line-through text-slate-500' : ''}>{t.title}</span>
+            </CommandItem>
+          ))}
+        </CommandGroup>
+
+        <CommandGroup heading="Team Members">
+          {members.map(m => (
+            <CommandItem key={m.id} onSelect={() => runCommand(() => navigate(`/team`))}>
+              <Users className="mr-2 h-4 w-4 text-[var(--primary)]" />
+              <span>{m.name}</span>
+            </CommandItem>
+          ))}
+        </CommandGroup>
+        
+        <CommandSeparator />
+        <CommandGroup heading="Settings">
+          <CommandItem onSelect={() => runCommand(() => navigate('/settings'))}>
+            <Settings className="mr-2 h-4 w-4" />
+            <span>Account Settings</span>
           </CommandItem>
         </CommandGroup>
       </CommandList>

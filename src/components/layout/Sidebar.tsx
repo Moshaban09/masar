@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, FolderKanban, CheckSquare, Users, CalendarDays, Settings, Bell, Hexagon } from 'lucide-react';
+import { LayoutDashboard, FolderKanban, CheckSquare, Users, CalendarDays, Settings, Bell } from 'lucide-react';
 import { useAuth } from '../../store/useAuth';
 
 export function Sidebar({ className }: { className?: string }) {
@@ -20,7 +20,7 @@ export function Sidebar({ className }: { className?: string }) {
       {/* Brand */}
       <div className="h-16 flex items-center px-6 border-b border-slate-200 shrink-0">
         <div className="flex items-center gap-2 text-slate-900 font-semibold text-lg">
-          <Hexagon className="w-6 h-6 text-[var(--primary)] fill-[var(--primary)]/20" />
+          <img src="/favicon.svg" alt="Masar Logo" className="w-6 h-6" />
           Masar
         </div>
       </div>

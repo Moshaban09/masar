@@ -18,7 +18,6 @@ import { Settings } from './pages/Settings/Settings';
 import { NotFound } from './pages/NotFound/NotFound';
 
 import { Toaster } from './components/ui/sonner';
-import { ThemeProvider } from './components/ThemeProvider';
 
 const router = createBrowserRouter([
   {
@@ -84,9 +83,9 @@ const router = createBrowserRouter([
 
 export default function App() {
   return (
-    <ThemeProvider defaultTheme="light" storageKey="masar-theme">
+    <>
       <RouterProvider router={router} />
       <Toaster position="top-center" richColors />
-    </ThemeProvider>
+    </>
   );
 }
