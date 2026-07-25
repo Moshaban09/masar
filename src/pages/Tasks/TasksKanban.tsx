@@ -17,6 +17,7 @@ import { KanbanCard } from './KanbanCard';
 
 interface Props {
   tasks: Task[];
+  onEdit?: (task: Task) => void;
 }
 
 const COLUMNS: { id: TaskStatus; title: string; color: string }[] = [
@@ -26,8 +27,8 @@ const COLUMNS: { id: TaskStatus; title: string; color: string }[] = [
   { id: 'done', title: 'Done', color: 'bg-emerald-50' },
 ];
 
-export function TasksKanban({ tasks }: Props) {
-  const { updateTaskStatus } = useWorkspace();
+export function TasksKanban({ tasks, onEdit }: Props) {
+  const { updateTaskStatus, reorderTask } = useWorkspace();
   const [activeTask, setActiveTask] = useState<Task | null>(null);
 
   const sensors = useSensors(
@@ -45,7 +46,7 @@ export function TasksKanban({ tasks }: Props) {
     setActiveTask(null);
     const { active, over } = event;
     
-    if (!over) return;
+    if (!over || active.id === over.id) return;
 
     const activeId = active.id as string;
     const overId = over.id as string;
@@ -56,13 +57,17 @@ export function TasksKanban({ tasks }: Props) {
     if (!activeTaskData) return;
 
     if (isOverColumn) {
+      // Dropped onto an empty column
       if (activeTaskData.status !== overId) {
         updateTaskStatus(activeId, overId as TaskStatus);
       }
     } else {
+      // Dropped onto a task (sort/reorder)
       const overTask = tasks.find(t => t.id === overId);
-      if (overTask && activeTaskData.status !== overTask.status) {
-        updateTaskStatus(activeId, overTask.status);
+      if (overTask) {
+        // We pass the overTask's status. If it's a different column, it changes status and moves above it.
+        // If it's the same column, it just moves above it.
+        reorderTask(activeId, overId, overTask.status);
       }
     }
   };
@@ -85,6 +90,7 @@ export function TasksKanban({ tasks }: Props) {
                 title={column.title} 
                 color={column.color} 
                 tasks={columnTasks} 
+                onEdit={onEdit}
               />
             );
           })}

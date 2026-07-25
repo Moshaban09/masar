@@ -4,6 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Button } from '../../components/ui/button';
 import { useAuth } from '../../store/useAuth';
+import { useWorkspace } from '../../store/useWorkspace';
 import { toast } from 'sonner';
 
 const schema = z.object({
@@ -16,6 +17,7 @@ type FormData = z.infer<typeof schema>;
 
 export function Signup() {
   const { login } = useAuth();
+  const { clearWorkspace } = useWorkspace();
   const navigate = useNavigate();
 
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<FormData>({
@@ -32,6 +34,7 @@ export function Signup() {
     const success = await login(data.email, data.password);
     
     if (success) {
+      clearWorkspace();
       toast.success('Account created successfully! Welcome to Masar.');
       navigate('/dashboard');
     }

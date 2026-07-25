@@ -1,9 +1,10 @@
 import { Search, Bell, Menu } from 'lucide-react';
 import { useAuth } from '../../store/useAuth';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
-import { useLocation, Link } from 'react-router-dom';
+import { useLocation, Link, useNavigate } from 'react-router-dom';
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from '../ui/sheet';
 import { Sidebar } from './Sidebar';
+import { useWorkspace } from '../../store/useWorkspace';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -13,9 +14,22 @@ import {
   BreadcrumbSeparator,
 } from '../ui/breadcrumb';
 
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '../ui/dropdown-menu';
+
 export function Topbar() {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
+  const { notifications } = useWorkspace();
   const location = useLocation();
+  const navigate = useNavigate();
+  
+  const hasUnread = notifications.some(n => !n.read);
   
   const pathName = location.pathname.split('/')[1] || 'dashboard';
   const breadcrumb = pathName.charAt(0).toUpperCase() + pathName.slice(1);
@@ -66,24 +80,53 @@ export function Topbar() {
         </div>
 
         {/* Notifications */}
-        <button className="relative p-2 text-slate-400 hover:bg-slate-50 hover:text-slate-600 rounded-full transition-colors">
+        <Link to="/notifications" className="relative p-2 text-slate-400 hover:bg-slate-50 hover:text-slate-600 rounded-full transition-colors">
           <Bell className="h-5 w-5" />
-          <span className="absolute top-1.5 right-2 h-2 w-2 rounded-full bg-[var(--primary)] ring-2 ring-white" />
-        </button>
+          {hasUnread && (
+            <span className="absolute top-1.5 right-2 h-2 w-2 rounded-full bg-[var(--primary)] ring-2 ring-white" />
+          )}
+        </Link>
 
         {/* Profile */}
-        <div className="flex items-center gap-3 border-l border-slate-200 pl-4 ml-2">
-          <div className="hidden md:flex flex-col items-end">
-            <span className="text-sm font-medium text-slate-900 leading-none">{user?.name}</span>
-            <span className="text-xs text-slate-500 mt-1 leading-none capitalize">{user?.plan} Plan</span>
-          </div>
-          <Avatar className="h-8 w-8 cursor-pointer ring-2 ring-transparent hover:ring-[var(--primary)] transition-all">
-            <AvatarImage src={user?.avatar} alt={user?.name} />
-            <AvatarFallback className="bg-slate-100 text-slate-600">
-              {user?.name?.substring(0, 2).toUpperCase() || 'US'}
-            </AvatarFallback>
-          </Avatar>
-        </div>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <div className="flex items-center gap-3 border-l border-slate-200 pl-4 ml-2 cursor-pointer group">
+              <div className="hidden md:flex flex-col items-end">
+                <span className="text-sm font-medium text-slate-900 leading-none group-hover:text-[var(--primary)] transition-colors">{user?.name}</span>
+                <span className="text-xs text-slate-500 mt-1 leading-none capitalize">{user?.plan} Plan</span>
+              </div>
+              <Avatar className="h-8 w-8 ring-2 ring-transparent group-hover:ring-[var(--primary)] transition-all">
+                <AvatarImage src={user?.avatar} alt={user?.name} />
+                <AvatarFallback className="bg-slate-100 text-slate-600">
+                  {user?.name?.substring(0, 2).toUpperCase() || 'US'}
+                </AvatarFallback>
+              </Avatar>
+            </div>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-56">
+            <DropdownMenuLabel>My Account</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => navigate('/settings')}>
+              Profile
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => navigate('/settings')}>
+              Billing
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => navigate('/settings')}>
+              Settings
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem 
+              onClick={() => {
+                logout();
+                navigate('/');
+              }} 
+              className="text-red-600 focus:text-red-600 focus:bg-red-50"
+            >
+              Log out
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </header>
   );

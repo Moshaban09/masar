@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { useWorkspace } from '../../store/useWorkspace';
 import { Button } from '../../components/ui/button';
-import { Plus, Mail } from 'lucide-react';
+import { Plus, Mail, Trash2 } from 'lucide-react';
 import { InviteMemberModal } from './InviteMemberModal';
 
 export function Team() {
-  const { members } = useWorkspace();
+  const { members, removeMember } = useWorkspace();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const getStatusColor = (status: string) => {
@@ -55,9 +55,17 @@ export function Team() {
             </div>
             
             <div className="w-full mt-4 flex gap-2">
-              <Button variant="outline" size="sm" className="w-full h-8 text-xs">
+              <Button variant="outline" size="sm" className="flex-1 h-8 text-xs">
                 <Mail className="w-3 h-3 mr-1.5" />
                 Email
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="w-8 h-8 p-0 text-red-500 hover:text-red-700 hover:bg-red-50 border-slate-200 hover:border-red-200 shrink-0"
+                onClick={() => removeMember(member.id)}
+              >
+                <Trash2 className="w-3.5 h-3.5" />
               </Button>
             </div>
           </div>

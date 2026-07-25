@@ -24,9 +24,7 @@ export function Login() {
     },
   });
 
-  const handleOAuthClick = (provider: string) => {
-    toast.warning(`${provider} login will be enabled in a future release.`);
-  };
+
 
   const onSubmit = async (data: FormData) => {
     const success = await login(data.email, data.password);
@@ -45,23 +43,7 @@ export function Login() {
         <p className="text-sm text-slate-500 mt-2">Enter your credentials to access your workspace.</p>
       </div>
 
-      <div className="flex gap-4">
-        <Button variant="outline" type="button" className="w-full text-slate-600 hover:text-slate-900 font-normal border-slate-200" onClick={() => handleOAuthClick('Google')}>
-          Google
-        </Button>
-        <Button variant="outline" type="button" className="w-full text-slate-600 hover:text-slate-900 font-normal border-slate-200" onClick={() => handleOAuthClick('GitHub')}>
-          GitHub
-        </Button>
-      </div>
 
-      <div className="relative">
-        <div className="absolute inset-0 flex items-center">
-          <span className="w-full border-t border-slate-200" />
-        </div>
-        <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-white px-2 text-slate-400">Or continue with</span>
-        </div>
-      </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
         <div className="flex flex-col gap-2">

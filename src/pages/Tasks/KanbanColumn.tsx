@@ -8,9 +8,10 @@ interface Props {
   title: string;
   color: string;
   tasks: Task[];
+  onEdit?: (task: Task) => void;
 }
 
-export function KanbanColumn({ id, title, color, tasks }: Props) {
+export function KanbanColumn({ id, title, color, tasks, onEdit }: Props) {
   const { setNodeRef, isOver } = useDroppable({ id });
 
   return (
@@ -29,7 +30,7 @@ export function KanbanColumn({ id, title, color, tasks }: Props) {
         <SortableContext id={id} items={tasks.map(t => t.id)} strategy={rectSortingStrategy}>
           <div className="min-h-[200px] h-full pb-10">
             {tasks.map(task => (
-              <KanbanCard key={task.id} task={task} />
+              <KanbanCard key={task.id} task={task} onEdit={onEdit} />
             ))}
           </div>
         </SortableContext>

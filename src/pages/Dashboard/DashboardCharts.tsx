@@ -1,24 +1,47 @@
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, PieChart, Pie, Cell } from 'recharts';
-
-const areaData = [
-  { name: 'Mon', tasks: 12 },
-  { name: 'Tue', tasks: 19 },
-  { name: 'Wed', tasks: 15 },
-  { name: 'Thu', tasks: 22 },
-  { name: 'Fri', tasks: 28 },
-  { name: 'Sat', tasks: 10 },
-  { name: 'Sun', tasks: 14 },
-];
-
-const pieData = [
-  { name: 'Completed', value: 45, color: '#10B981' }, // Emerald
-  { name: 'In Progress', value: 30, color: '#4F46E5' }, // Indigo
-  { name: 'Planning', value: 15, color: '#F59E0B' }, // Amber
-  { name: 'On Hold', value: 10, color: '#94A3B8' }, // Slate
-];
+import { useWorkspace } from '../../store/useWorkspace';
 
 export function DashboardCharts() {
+  const { tasks, projects } = useWorkspace();
+
+  // Project Status Distribution
+  const inProgressCount = projects.filter(p => p.status === 'in-progress').length;
+  const planningCount = projects.filter(p => p.status === 'planning').length;
+  const completedCount = projects.filter(p => p.status === 'completed').length;
+  const onHoldCount = projects.filter(p => p.status === 'on-hold').length;
+
+  let pieData = [
+    { name: 'Completed', value: completedCount, color: '#10B981' },
+    { name: 'In Progress', value: inProgressCount, color: '#4F46E5' },
+    { name: 'Planning', value: planningCount, color: '#F59E0B' },
+    { name: 'On Hold', value: onHoldCount, color: '#94A3B8' },
+  ].filter(d => d.value > 0);
+  
+  if (pieData.length === 0) {
+    pieData = [{ name: 'No Projects', value: 1, color: '#E2E8F0' }];
+  }
+
+  // Weekly Task Velocity (Based on Completed Tasks Due Dates)
+  const dayCounts = [0, 0, 0, 0, 0, 0, 0];
+  tasks.forEach(task => {
+    if (task.dueDate && task.status === 'done') {
+      const date = new Date(task.dueDate);
+      if (!isNaN(date.getTime())) {
+        dayCounts[date.getDay()]++;
+      }
+    }
+  });
+
+  const areaData = [
+    { name: 'Mon', tasks: dayCounts[1] },
+    { name: 'Tue', tasks: dayCounts[2] },
+    { name: 'Wed', tasks: dayCounts[3] },
+    { name: 'Thu', tasks: dayCounts[4] },
+    { name: 'Fri', tasks: dayCounts[5] },
+    { name: 'Sat', tasks: dayCounts[6] },
+    { name: 'Sun', tasks: dayCounts[0] },
+  ];
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
       {/* Activity Area Chart */}

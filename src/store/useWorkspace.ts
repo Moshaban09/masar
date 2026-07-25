@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { arrayMove } from '@dnd-kit/sortable';
 import type { Project, Task, Member, Activity, TaskStatus, AppNotification } from '../types';
 import { mockProjects, mockTasks, mockMembers, mockActivities, mockNotifications } from '../data/mockData';
 
@@ -15,15 +16,20 @@ interface WorkspaceState {
   switchWorkspace: (workspaceId: string) => void;
   addProject: (project: Omit<Project, 'id' | 'tasksTotal' | 'tasksDone' | 'progress' | 'updatedAt'>) => void;
   addTask: (task: Omit<Task, 'id' | 'subTasks' | 'comments'>) => void;
+  updateTask: (taskId: string, updates: Partial<Task>) => void;
   updateTaskStatus: (taskId: string, status: TaskStatus) => void;
   toggleTaskStatus: (taskId: string) => void;
+  reorderTask: (activeId: string, overId: string, newStatus?: TaskStatus) => void;
   deleteTask: (taskId: string) => void;
   addMember: (member: Omit<Member, 'id' | 'activeTasks'>) => void;
+  removeMember: (memberId: string) => void;
   addActivity: (activity: Omit<Activity, 'id' | 'time'>) => void;
+  addNotification: (notification: Omit<AppNotification, 'id' | 'time' | 'read'>) => void;
   toggleSubTask: (taskId: string, subTaskId: string) => void;
   addSubTask: (taskId: string, title: string) => void;
   addTaskComment: (taskId: string, memberName: string, avatar: string, body: string) => void;
   markNotificationRead: (notificationId: string) => void;
+  clearWorkspace: () => void;
 }
 
 export const useWorkspace = create<WorkspaceState>()(
@@ -68,7 +74,57 @@ export const useWorkspace = create<WorkspaceState>()(
           return p;
         });
 
-        return { tasks: [...state.tasks, newTask], projects: updatedProjects };
+        const newNotif: AppNotification = {
+          id: `n${Date.now()}`,
+          title: 'New Task Assigned',
+          body: `Task "${taskData.title}" has been created.`,
+          time: 'Just now',
+          read: false,
+          type: 'assign'
+        };
+
+        return { 
+          tasks: [...state.tasks, newTask], 
+          projects: updatedProjects,
+          notifications: [newNotif, ...state.notifications] 
+        };
+      }),
+
+      updateTask: (taskId, updates) => set((state) => {
+        const taskIndex = state.tasks.findIndex(t => t.id === taskId);
+        if (taskIndex === -1) return state;
+
+        const newTasks = [...state.tasks];
+        const oldTask = newTasks[taskIndex];
+        
+        let newProjectName = oldTask.project;
+        if (updates.projectId && updates.projectId !== oldTask.projectId) {
+           const p = state.projects.find(proj => proj.id === updates.projectId);
+           if (p) newProjectName = p.name;
+        }
+
+        newTasks[taskIndex] = { ...oldTask, ...updates, project: newProjectName };
+
+        let updatedProjects = state.projects;
+        if (updates.projectId && updates.projectId !== oldTask.projectId) {
+           updatedProjects = state.projects.map(p => {
+             if (p.id === oldTask.projectId) {
+                const tasksTotal = Math.max(0, p.tasksTotal - 1);
+                const tasksDone = oldTask.status === 'done' ? Math.max(0, p.tasksDone - 1) : p.tasksDone;
+                const progress = tasksTotal === 0 ? 0 : Math.round((tasksDone / tasksTotal) * 100);
+                return { ...p, tasksTotal, tasksDone, progress, updatedAt: 'Just now' };
+             }
+             if (p.id === updates.projectId) {
+                const tasksTotal = p.tasksTotal + 1;
+                const tasksDone = oldTask.status === 'done' ? p.tasksDone + 1 : p.tasksDone;
+                const progress = tasksTotal === 0 ? 0 : Math.round((tasksDone / tasksTotal) * 100);
+                return { ...p, tasksTotal, tasksDone, progress, updatedAt: 'Just now' };
+             }
+             return p;
+           });
+        }
+        
+        return { tasks: newTasks, projects: updatedProjects };
       }),
 
       updateTaskStatus: (taskId, status) => set((state) => {
@@ -104,6 +160,42 @@ export const useWorkspace = create<WorkspaceState>()(
         }
       },
 
+      reorderTask: (activeId, overId, newStatus) => set((state) => {
+        const oldIndex = state.tasks.findIndex(t => t.id === activeId);
+        const newIndex = state.tasks.findIndex(t => t.id === overId);
+        
+        if (oldIndex === -1) return state;
+
+        let newTasks = [...state.tasks];
+        let updatedProjects = state.projects;
+        
+        // Handle status change
+        if (newStatus && newTasks[oldIndex].status !== newStatus) {
+           const wasDone = newTasks[oldIndex].status === 'done';
+           const isDone = newStatus === 'done';
+           
+           newTasks[oldIndex] = { ...newTasks[oldIndex], status: newStatus };
+           
+           if (wasDone !== isDone) {
+             updatedProjects = state.projects.map(p => {
+               if (p.id === newTasks[oldIndex].projectId) {
+                  const tasksDone = isDone ? p.tasksDone + 1 : p.tasksDone - 1;
+                  const progress = p.tasksTotal === 0 ? 0 : Math.round((tasksDone / p.tasksTotal) * 100);
+                  return { ...p, tasksDone, progress, updatedAt: 'Just now' };
+               }
+               return p;
+             });
+           }
+        }
+
+        // Handle reorder
+        if (newIndex !== -1 && oldIndex !== newIndex) {
+          newTasks = arrayMove(newTasks, oldIndex, newIndex);
+        }
+        
+        return { tasks: newTasks, projects: updatedProjects };
+      }),
+
       deleteTask: (taskId) => set((state) => {
         const task = state.tasks.find(t => t.id === taskId);
         if (!task) return state;
@@ -131,6 +223,10 @@ export const useWorkspace = create<WorkspaceState>()(
         return { members: [...state.members, newMember] };
       }),
 
+      removeMember: (memberId) => set((state) => {
+        return { members: state.members.filter(m => m.id !== memberId) };
+      }),
+
       addActivity: (activityData) => set((state) => {
         const newActivity: Activity = {
           ...activityData,
@@ -138,6 +234,16 @@ export const useWorkspace = create<WorkspaceState>()(
           time: 'Just now'
         };
         return { activities: [newActivity, ...state.activities] };
+      }),
+
+      addNotification: (data) => set((state) => {
+        const newNotif: AppNotification = {
+          ...data,
+          id: `n${Date.now()}`,
+          time: 'Just now',
+          read: false
+        };
+        return { notifications: [newNotif, ...state.notifications] };
       }),
 
       toggleSubTask: (taskId, subTaskId) => set((state) => {
@@ -189,6 +295,14 @@ export const useWorkspace = create<WorkspaceState>()(
           n.id === notificationId ? { ...n, read: true } : n
         );
         return { notifications: updated };
+      }),
+
+      clearWorkspace: () => set({
+        projects: [],
+        tasks: [],
+        members: [],
+        activities: [],
+        notifications: [],
       })
     }),
     {

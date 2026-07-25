@@ -20,8 +20,10 @@ interface AuthState {
   login: (email: string, password?: string) => Promise<boolean>;
   logout: () => void;
   updateProfile: (name: string, email: string) => void;
+  updateAvatar: (avatarUrl: string) => void;
   updatePassword: (oldPass: string, newPass: string) => Promise<boolean>;
   upgradePlan: () => void;
+  cancelSubscription: () => void;
   setAccentColor: (color: AccentColor) => void;
 }
 
@@ -67,9 +69,15 @@ export const useAuth = create<AuthState>()(
         return { user: { ...state.user, name, email } };
       }),
 
+      updateAvatar: (avatar) => set((state) => {
+        if (!state.user) return state;
+        return { user: { ...state.user, avatar } };
+      }),
+
       updatePassword: async (oldPass, _newPass) => {
         await new Promise((resolve) => setTimeout(resolve, 500));
-        if (oldPass === 'password') {
+        // Accept any password for the mock demo as long as it's provided
+        if (oldPass && oldPass.length > 0) {
           return true;
         }
         return false;
@@ -78,6 +86,11 @@ export const useAuth = create<AuthState>()(
       upgradePlan: () => set((state) => {
         if (!state.user) return state;
         return { user: { ...state.user, plan: 'pro' } };
+      }),
+
+      cancelSubscription: () => set((state) => {
+        if (!state.user) return state;
+        return { user: { ...state.user, plan: 'free' } };
       }),
 
       setAccentColor: (color) => {

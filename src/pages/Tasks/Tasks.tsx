@@ -1,6 +1,7 @@
 
 import { useState } from 'react';
 import { useWorkspace } from '../../store/useWorkspace';
+import type { Task } from '../../types';
 import { Button } from '../../components/ui/button';
 import { Plus, LayoutGrid, List as ListIcon, Search } from 'lucide-react';
 import { TasksList } from './TasksList';
@@ -12,6 +13,7 @@ export function Tasks() {
   const [view, setView] = useState<'kanban' | 'list'>('kanban');
   const [searchQuery, setSearchQuery] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [taskToEdit, setTaskToEdit] = useState<Task | null>(null);
 
   const filteredTasks = tasks.filter(t => 
     t.title.toLowerCase().includes(searchQuery.toLowerCase())
@@ -62,13 +64,17 @@ export function Tasks() {
       {/* Main Content Area */}
       <div className="flex-1 min-h-0">
         {view === 'kanban' ? (
-          <TasksKanban tasks={filteredTasks} />
+          <TasksKanban tasks={filteredTasks} onEdit={setTaskToEdit} />
         ) : (
-          <TasksList tasks={filteredTasks} />
+          <TasksList tasks={filteredTasks} onEdit={setTaskToEdit} />
         )}
       </div>
 
-      <NewTaskModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+      <NewTaskModal 
+        isOpen={isModalOpen || !!taskToEdit} 
+        onClose={() => { setIsModalOpen(false); setTaskToEdit(null); }} 
+        taskToEdit={taskToEdit}
+      />
     </div>
   );
 }

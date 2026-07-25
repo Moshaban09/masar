@@ -1,11 +1,16 @@
 import type { Task } from '../../types';
 import { Badge } from '../../components/ui/badge';
+import { Checkbox } from '../../components/ui/checkbox';
+import { useWorkspace } from '../../store/useWorkspace';
 
 interface Props {
   tasks: Task[];
+  onEdit?: (task: Task) => void;
 }
 
-export function TasksList({ tasks }: Props) {
+export function TasksList({ tasks, onEdit }: Props) {
+  const { toggleTaskStatus, members } = useWorkspace();
+
   const getPriorityColor = (priority: string) => {
     switch (priority) {
       case 'urgent': return 'bg-red-100 text-red-700 border-red-200';
@@ -25,16 +30,24 @@ export function TasksList({ tasks }: Props) {
         <table className="w-full text-sm text-left">
           <thead className="text-xs text-slate-500 bg-slate-50 border-b border-slate-200 uppercase sticky top-0">
             <tr>
+              <th className="px-6 py-4 font-medium w-12"></th>
               <th className="px-6 py-4 font-medium">Task</th>
               <th className="px-6 py-4 font-medium">Status</th>
               <th className="px-6 py-4 font-medium">Priority</th>
+              <th className="px-6 py-4 font-medium">Assignee</th>
               <th className="px-6 py-4 font-medium">Project ID</th>
               <th className="px-6 py-4 font-medium text-right">Due Date</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-200">
             {tasks.map(t => (
-              <tr key={t.id} className="hover:bg-slate-50 transition-colors group cursor-pointer">
+              <tr key={t.id} className="hover:bg-slate-50 transition-colors group cursor-pointer" onClick={() => onEdit?.(t)}>
+                <td className="px-6 py-4" onClick={(e) => e.stopPropagation()}>
+                  <Checkbox 
+                    checked={t.status === 'done'} 
+                    onCheckedChange={() => toggleTaskStatus(t.id)} 
+                  />
+                </td>
                 <td className="px-6 py-4 font-medium text-slate-900">
                   <div className={`line-clamp-1 ${t.status === 'done' ? 'text-slate-400 line-through' : ''}`}>
                     {t.title}
@@ -50,6 +63,18 @@ export function TasksList({ tasks }: Props) {
                     {t.priority}
                   </Badge>
                 </td>
+                <td className="px-6 py-4">
+                  {members.find(m => m.id === t.assignee) ? (
+                    <img 
+                      src={members.find(m => m.id === t.assignee)?.avatar} 
+                      alt="Assignee" 
+                      className="w-6 h-6 rounded-full object-cover border border-slate-200" 
+                      title={`Assigned to ${members.find(m => m.id === t.assignee)?.name}`}
+                    />
+                  ) : (
+                    <span className="text-xs text-slate-400">Unassigned</span>
+                  )}
+                </td>
                 <td className="px-6 py-4 text-slate-500 text-xs font-mono">
                   {t.projectId}
                 </td>
@@ -60,7 +85,7 @@ export function TasksList({ tasks }: Props) {
             ))}
             {tasks.length === 0 && (
               <tr>
-                <td colSpan={5} className="py-12 text-center text-slate-500">
+                <td colSpan={7} className="py-12 text-center text-slate-500">
                   No tasks found.
                 </td>
               </tr>
