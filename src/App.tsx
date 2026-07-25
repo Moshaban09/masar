@@ -7,6 +7,7 @@ import { AuthLayout } from './pages/Auth/AuthLayout';
 import { Login } from './pages/Auth/Login';
 import { Signup } from './pages/Auth/Signup';
 import { ForgotPassword } from './pages/Auth/ForgotPassword';
+import { Dashboard } from './pages/Dashboard/Dashboard';
 import { Toaster } from './components/ui/sonner';
 
 const router = createBrowserRouter([
@@ -31,7 +32,7 @@ const router = createBrowserRouter([
         children: [
           {
             path: '/dashboard',
-            element: <div className="p-8">Dashboard Page (Coming later)</div>,
+            element: <Dashboard />,
           },
           {
             path: '/projects',
