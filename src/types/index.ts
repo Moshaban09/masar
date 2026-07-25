@@ -75,5 +75,5 @@ export interface AppNotification {
   body: string;
   time: string;
   read: boolean;
-  type: 'mention' | 'deadline' | 'assign' | 'system';
+  type: 'mention' | 'deadline' | 'assign' | 'system' | 'update' | 'comment';
 }
