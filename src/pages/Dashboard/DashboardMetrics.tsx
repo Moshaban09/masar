@@ -18,7 +18,7 @@ export function DashboardMetrics() {
       title: 'Total Projects',
       value: totalProjects.toString(),
       icon: FolderKanban,
-      trend: totalProjects > 0 ? '+1 from last month' : 'No projects yet',
+      trend: totalProjects > 0 ? 'Across workspace' : 'No projects yet',
       color: 'text-indigo-600',
       bg: 'bg-indigo-50',
     },
@@ -26,7 +26,7 @@ export function DashboardMetrics() {
       title: 'Active Tasks',
       value: activeTasks.toString(),
       icon: CheckSquare,
-      trend: activeTasks > 0 ? '+2 this week' : 'No active tasks',
+      trend: activeTasks > 0 ? 'To be completed' : 'No active tasks',
       color: 'text-emerald-600',
       bg: 'bg-emerald-50',
     },
@@ -42,9 +42,9 @@ export function DashboardMetrics() {
       title: 'Overall Progress',
       value: `${avgProgress}%`,
       icon: TrendingUp,
-      trend: avgProgress > 0 ? 'On track' : 'Not started',
-      color: 'text-[var(--primary)]',
-      bg: 'bg-[var(--primary)]/10',
+      trend: avgProgress > 0 ? 'Average completion' : 'No progress',
+      color: 'text-blue-600',
+      bg: 'bg-blue-50',
     }
   ];
 

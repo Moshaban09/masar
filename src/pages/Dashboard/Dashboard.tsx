@@ -21,7 +21,7 @@ export function Dashboard() {
         <div className="flex gap-2">
           <select 
             value={period}
-            onChange={(e) => setPeriod(e.target.value as any)}
+            onChange={(e) => setPeriod(e.target.value as 'today' | 'week' | 'month')}
             className="h-9 rounded-md border border-slate-200 bg-white px-3 text-sm text-slate-700 outline-none focus:border-[var(--primary)] focus:ring-1 focus:ring-[var(--primary)] transition-all shadow-sm"
           >
             <option value="today">Today</option>
