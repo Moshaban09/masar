@@ -33,7 +33,7 @@ export function NewTaskModal({ isOpen, onClose, initialProjectId, taskToEdit }: 
     defaultValues: { 
       title: taskToEdit?.title || '', 
       projectId: taskToEdit?.projectId || initialProjectId || '', 
-      priority: (taskToEdit?.priority as any) || 'medium', 
+      priority: (taskToEdit?.priority as 'low' | 'medium' | 'high') || 'medium', 
       dueDate: taskToEdit?.dueDate || '',
       assignee: taskToEdit?.assignee || '',
     },
@@ -44,7 +44,7 @@ export function NewTaskModal({ isOpen, onClose, initialProjectId, taskToEdit }: 
       reset({ 
         title: taskToEdit?.title || '', 
         projectId: taskToEdit?.projectId || initialProjectId || '', 
-        priority: (taskToEdit?.priority as any) || 'medium', 
+        priority: (taskToEdit?.priority as 'low' | 'medium' | 'high') || 'medium', 
         dueDate: taskToEdit?.dueDate ? new Date(taskToEdit.dueDate).toISOString().split('T')[0] : '',
         assignee: taskToEdit?.assignee || '',
       });
