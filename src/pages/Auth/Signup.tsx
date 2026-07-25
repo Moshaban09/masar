@@ -31,7 +31,7 @@ export function Signup() {
     console.log('Signup data:', data);
     
     // Auto-login the user with the new credentials
-    const success = await login(data.email, data.password);
+    const success = await login(data.email, data.password, data.name);
     
     if (success) {
       clearWorkspace();

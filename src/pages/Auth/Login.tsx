@@ -19,8 +19,8 @@ export function Login() {
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: {
-      email: 'ava@masar.io',
-      password: 'password',
+      email: '',
+      password: '',
     },
   });
 

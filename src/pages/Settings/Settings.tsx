@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Button } from '../../components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/tabs';
 import { Badge } from '../../components/ui/badge';
@@ -23,11 +23,30 @@ export function Settings() {
     toast.success('Profile updated successfully');
   };
 
-  const handleChangeAvatar = () => {
-    const randomId = Math.floor(Math.random() * 1000);
-    const newAvatar = `https://i.pravatar.cc/150?u=${randomId}`;
-    updateAvatar(newAvatar);
-    toast.success('Avatar updated successfully');
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 2 * 1024 * 1024) {
+        toast.error('Image size should be less than 2MB');
+        return;
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        updateAvatar(reader.result as string);
+        toast.success('Avatar updated successfully');
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleRemoveAvatar = () => {
+    if (!user) return;
+    const userName = user.name || user.email.split('@')[0];
+    const defaultAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(userName)}&background=059669&color=fff`;
+    updateAvatar(defaultAvatar);
+    toast.success('Avatar removed successfully');
   };
 
   const handleUpdatePassword = async () => {
@@ -85,9 +104,13 @@ export function Settings() {
           <div className="p-6">
             <TabsContent value="profile" className="mt-0 outline-none">
               <div className="max-w-xl flex flex-col gap-6">
-                <div className="flex items-center gap-6">
-                  <img src={user?.avatar} alt="Avatar" className="w-20 h-20 rounded-full border border-slate-200 object-cover" />
-                  <Button variant="outline" onClick={handleChangeAvatar}>Change Avatar</Button>
+                <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6">
+                  <img src={user?.avatar} alt="Avatar" className="w-20 h-20 rounded-full border border-slate-200 object-cover shrink-0" />
+                  <div className="flex flex-wrap items-center gap-3">
+                    <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleFileUpload} />
+                    <Button variant="outline" onClick={() => fileInputRef.current?.click()}>Upload Photo</Button>
+                    <Button variant="ghost" className="text-red-500 hover:text-red-600 hover:bg-red-50" onClick={handleRemoveAvatar}>Remove</Button>
+                  </div>
                 </div>
                 
                 <div className="flex flex-col gap-2">

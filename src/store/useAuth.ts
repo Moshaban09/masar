@@ -17,7 +17,7 @@ interface AuthState {
   isInitialized: boolean;
   
   // Actions
-  login: (email: string, password?: string) => Promise<boolean>;
+  login: (email: string, password?: string, name?: string) => Promise<boolean>;
   logout: () => void;
   updateProfile: (name: string, email: string) => void;
   updateAvatar: (avatarUrl: string) => void;
@@ -34,18 +34,21 @@ export const useAuth = create<AuthState>()(
       isAuthenticated: false,
       isInitialized: false,
 
-      login: async (email, password) => {
+      login: async (email, password, name) => {
         // Mock API Call delay
         await new Promise((resolve) => setTimeout(resolve, 900));
         
         // Mock validation
         if (email && password) {
+          const userName = name || email.split('@')[0];
+          const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(userName)}&background=059669&color=fff`;
+
           set({
             user: {
               id: 'u1',
               email,
-              name: 'Ava Sinclair',
-              avatar: 'https://i.pravatar.cc/150?u=ava',
+              name: userName,
+              avatar: avatarUrl,
               plan: 'free',
               accentColor: 'emerald'
             },
@@ -66,7 +69,13 @@ export const useAuth = create<AuthState>()(
 
       updateProfile: (name, email) => set((state) => {
         if (!state.user) return state;
-        return { user: { ...state.user, name, email } };
+        
+        let newAvatar = state.user.avatar;
+        if (newAvatar.includes('ui-avatars.com')) {
+          newAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(name || email.split('@')[0])}&background=059669&color=fff`;
+        }
+        
+        return { user: { ...state.user, name, email, avatar: newAvatar } };
       }),
 
       updateAvatar: (avatar) => set((state) => {
