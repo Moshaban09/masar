@@ -2,7 +2,7 @@ import { NavLink } from 'react-router-dom';
 import { LayoutDashboard, FolderKanban, CheckSquare, Users, CalendarDays, Settings, Bell, Hexagon } from 'lucide-react';
 import { useAuth } from '../../store/useAuth';
 
-export function Sidebar() {
+export function Sidebar({ className }: { className?: string }) {
   const { user } = useAuth();
   
   const navItems = [
@@ -16,7 +16,7 @@ export function Sidebar() {
   ];
 
   return (
-    <aside className="w-64 border-r border-slate-200 bg-white hidden md:flex flex-col h-full shrink-0">
+    <aside className={`w-64 border-r border-slate-200 bg-white flex flex-col h-full shrink-0 ${className ?? 'hidden md:flex'}`}>
       {/* Brand */}
       <div className="h-16 flex items-center px-6 border-b border-slate-200 shrink-0">
         <div className="flex items-center gap-2 text-slate-900 font-semibold text-lg">

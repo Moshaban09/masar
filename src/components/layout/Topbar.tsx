@@ -1,21 +1,57 @@
-import { Search, Bell } from 'lucide-react';
+import { Search, Bell, Menu } from 'lucide-react';
 import { useAuth } from '../../store/useAuth';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
-import { useLocation } from 'react-router-dom';
+import { useLocation, Link } from 'react-router-dom';
+import { Sheet, SheetContent, SheetTrigger, SheetTitle } from '../ui/sheet';
+import { Sidebar } from './Sidebar';
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from '../ui/breadcrumb';
 
 export function Topbar() {
   const { user } = useAuth();
   const location = useLocation();
   
-  // Format breadcrumb from pathname
-  const pathName = location.pathname.split('/')[1] || 'Dashboard';
+  const pathName = location.pathname.split('/')[1] || 'dashboard';
   const breadcrumb = pathName.charAt(0).toUpperCase() + pathName.slice(1);
 
   return (
     <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-4 md:px-8 shrink-0">
-      {/* Breadcrumbs */}
-      <div className="flex items-center text-sm font-medium text-slate-900">
-        <h2>{breadcrumb}</h2>
+      {/* Breadcrumbs and Mobile Nav */}
+      <div className="flex items-center gap-3">
+        <Sheet>
+          <SheetTrigger asChild>
+            <button className="md:hidden p-1.5 -ml-1.5 text-slate-500 hover:text-slate-900 rounded-md hover:bg-slate-100">
+              <Menu className="w-5 h-5" />
+            </button>
+          </SheetTrigger>
+          <SheetContent side="left" className="p-0 w-64 border-r-0">
+            <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
+            <Sidebar className="flex" />
+          </SheetContent>
+        </Sheet>
+
+        <Breadcrumb className="hidden md:flex">
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink asChild>
+                <Link to="/">Masar</Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>{breadcrumb}</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
+        
+        {/* Fallback title for mobile */}
+        <h2 className="md:hidden text-sm font-semibold text-slate-900">{breadcrumb}</h2>
       </div>
 
       <div className="flex items-center gap-4">

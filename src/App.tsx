@@ -15,6 +15,8 @@ import { Team } from './pages/Team/Team';
 import { Calendar } from './pages/Calendar/Calendar';
 import { Notifications } from './pages/Notifications/Notifications';
 import { Settings } from './pages/Settings/Settings';
+import { NotFound } from './pages/NotFound/NotFound';
+
 import { Toaster } from './components/ui/sonner';
 import { ThemeProvider } from './components/ThemeProvider';
 
@@ -76,7 +78,7 @@ const router = createBrowserRouter([
   },
   {
     path: '*',
-    element: <Navigate to="/" replace />,
+    element: <NotFound />,
   },
 ]);
 
