@@ -11,6 +11,10 @@ import { Dashboard } from './pages/Dashboard/Dashboard';
 import { ProjectsList } from './pages/Projects/ProjectsList';
 import { ProjectDetails } from './pages/Projects/ProjectDetails';
 import { Tasks } from './pages/Tasks/Tasks';
+import { Team } from './pages/Team/Team';
+import { Calendar } from './pages/Calendar/Calendar';
+import { Notifications } from './pages/Notifications/Notifications';
+import { Settings } from './pages/Settings/Settings';
 import { Toaster } from './components/ui/sonner';
 
 const router = createBrowserRouter([
@@ -51,19 +55,19 @@ const router = createBrowserRouter([
           },
           {
             path: '/team',
-            element: <div className="p-8">Team Page</div>,
+            element: <Team />,
           },
           {
             path: '/calendar',
-            element: <div className="p-8">Calendar Page</div>,
+            element: <Calendar />,
           },
           {
             path: '/notifications',
-            element: <div className="p-8">Notifications Page</div>,
+            element: <Notifications />,
           },
           {
             path: '/settings',
-            element: <div className="p-8">Settings Page</div>,
+            element: <Settings />,
           },
         ],
       },

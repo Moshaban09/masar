@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { Project, Task, Member, Activity, TaskStatus } from '../types';
-import { mockProjects, mockTasks, mockMembers, mockActivities } from '../data/mockData';
+import type { Project, Task, Member, Activity, TaskStatus, AppNotification } from '../types';
+import { mockProjects, mockTasks, mockMembers, mockActivities, mockNotifications } from '../data/mockData';
 
 interface WorkspaceState {
   activeWorkspaceId: string;
@@ -9,6 +9,7 @@ interface WorkspaceState {
   tasks: Task[];
   members: Member[];
   activities: Activity[];
+  notifications: AppNotification[];
   
   // Actions
   switchWorkspace: (workspaceId: string) => void;
@@ -22,6 +23,7 @@ interface WorkspaceState {
   toggleSubTask: (taskId: string, subTaskId: string) => void;
   addSubTask: (taskId: string, title: string) => void;
   addTaskComment: (taskId: string, memberName: string, avatar: string, body: string) => void;
+  markNotificationRead: (notificationId: string) => void;
 }
 
 export const useWorkspace = create<WorkspaceState>()(
@@ -32,6 +34,7 @@ export const useWorkspace = create<WorkspaceState>()(
       tasks: mockTasks,
       members: mockMembers,
       activities: mockActivities,
+      notifications: mockNotifications,
 
       switchWorkspace: (workspaceId) => set({ activeWorkspaceId: workspaceId }),
 
@@ -179,6 +182,13 @@ export const useWorkspace = create<WorkspaceState>()(
           return t;
         });
         return { tasks: updatedTasks };
+      }),
+
+      markNotificationRead: (notificationId) => set((state) => {
+        const updated = state.notifications.map(n => 
+          n.id === notificationId ? { ...n, read: true } : n
+        );
+        return { notifications: updated };
       })
     }),
     {
