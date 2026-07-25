@@ -26,10 +26,10 @@ export function TaskDetailsModal({ task, isOpen, onClose, onEdit }: Props) {
   return (
     <>
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-[750px] p-0 overflow-hidden bg-slate-50 border-0 shadow-2xl">
-        <div className="flex flex-col md:flex-row h-[500px]">
+      <DialogContent className="sm:max-w-[750px] w-[95vw] max-h-[90vh] md:max-h-none p-0 overflow-hidden bg-slate-50 border-0 shadow-2xl">
+        <div className="flex flex-col md:flex-row h-full max-h-[85vh] md:h-[500px] overflow-y-auto md:overflow-hidden">
           {/* Main Content: Details & Checklists */}
-          <div className="flex-1 p-6 overflow-y-auto bg-white">
+          <div className="flex-1 p-4 md:p-6 md:overflow-y-auto bg-white shrink-0">
             <div className="flex justify-between items-start mb-6">
               <div>
                 <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{task.project}</span>

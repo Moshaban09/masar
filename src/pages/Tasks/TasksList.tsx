@@ -29,8 +29,8 @@ export function TasksList({ tasks, onView }: Props) {
 
   return (
     <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden h-full">
-      <div className="overflow-auto h-full">
-        <table className="w-full text-sm text-left">
+      <div className="overflow-x-auto h-full">
+        <table className="w-full text-sm text-left min-w-[700px]">
           <thead className="text-xs text-slate-500 bg-slate-50 border-b border-slate-200 uppercase sticky top-0">
             <tr>
               <th className="px-6 py-4 font-medium w-12"></th>

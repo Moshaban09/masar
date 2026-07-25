@@ -75,7 +75,7 @@ export function ProjectsList() {
         ) : (
         <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full text-sm text-left">
+            <table className="w-full text-sm text-left min-w-[600px]">
               <thead className="text-xs text-slate-500 bg-slate-50 border-b border-slate-200 uppercase">
                 <tr>
                   <th className="px-6 py-4 font-medium">Project Name</th>

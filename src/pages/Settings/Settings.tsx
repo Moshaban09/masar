@@ -56,27 +56,27 @@ export function Settings() {
 
       <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
         <Tabs defaultValue="profile" className="w-full">
-          <div className="border-b border-slate-200 px-6 pt-4 bg-slate-50/50">
-            <TabsList className="bg-transparent h-auto p-0 flex gap-6">
+          <div className="border-b border-slate-200 px-4 sm:px-6 py-4 sm:pt-4 sm:pb-0 bg-slate-50/50">
+            <TabsList className="bg-transparent !h-auto p-0 flex flex-col sm:flex-row w-full gap-2 sm:gap-6 justify-start">
               <TabsTrigger 
                 value="profile" 
-                className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:text-slate-900 outline-none focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 rounded-none px-0 pb-3 text-slate-500 font-medium hover:text-slate-700 transition-colors"
+                className="w-full sm:w-auto sm:flex-none justify-start sm:justify-center data-[state=active]:bg-white sm:data-[state=active]:bg-transparent data-[state=active]:shadow-sm sm:data-[state=active]:shadow-none data-[state=active]:text-[var(--primary)] sm:data-[state=active]:text-slate-900 outline-none focus:outline-none focus:ring-0 rounded-lg sm:rounded-none px-3 sm:px-2 py-2.5 sm:py-0 sm:pb-3 text-slate-500 font-medium hover:text-slate-700 hover:bg-slate-100 sm:hover:bg-transparent transition-colors text-sm border sm:border-0 border-transparent data-[state=active]:border-slate-200 sm:data-[state=active]:border-transparent sm:border-b-2 sm:data-[state=active]:border-b-[var(--primary)]"
               >
-                <User className="w-4 h-4 mr-2" />
+                <User className="w-4 h-4 mr-1.5 sm:mr-2" />
                 Profile
               </TabsTrigger>
               <TabsTrigger 
                 value="security" 
-                className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:text-slate-900 outline-none focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 rounded-none px-0 pb-3 text-slate-500 font-medium hover:text-slate-700 transition-colors"
+                className="w-full sm:w-auto sm:flex-none justify-start sm:justify-center data-[state=active]:bg-white sm:data-[state=active]:bg-transparent data-[state=active]:shadow-sm sm:data-[state=active]:shadow-none data-[state=active]:text-[var(--primary)] sm:data-[state=active]:text-slate-900 outline-none focus:outline-none focus:ring-0 rounded-lg sm:rounded-none px-3 sm:px-2 py-2.5 sm:py-0 sm:pb-3 text-slate-500 font-medium hover:text-slate-700 hover:bg-slate-100 sm:hover:bg-transparent transition-colors text-sm border sm:border-0 border-transparent data-[state=active]:border-slate-200 sm:data-[state=active]:border-transparent sm:border-b-2 sm:data-[state=active]:border-b-[var(--primary)]"
               >
-                <Shield className="w-4 h-4 mr-2" />
+                <Shield className="w-4 h-4 mr-1.5 sm:mr-2" />
                 Security
               </TabsTrigger>
               <TabsTrigger 
                 value="billing" 
-                className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:text-slate-900 outline-none focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 rounded-none px-0 pb-3 text-slate-500 font-medium hover:text-slate-700 transition-colors"
+                className="w-full sm:w-auto sm:flex-none justify-start sm:justify-center data-[state=active]:bg-white sm:data-[state=active]:bg-transparent data-[state=active]:shadow-sm sm:data-[state=active]:shadow-none data-[state=active]:text-[var(--primary)] sm:data-[state=active]:text-slate-900 outline-none focus:outline-none focus:ring-0 rounded-lg sm:rounded-none px-3 sm:px-2 py-2.5 sm:py-0 sm:pb-3 text-slate-500 font-medium hover:text-slate-700 hover:bg-slate-100 sm:hover:bg-transparent transition-colors text-sm border sm:border-0 border-transparent data-[state=active]:border-slate-200 sm:data-[state=active]:border-transparent sm:border-b-2 sm:data-[state=active]:border-b-[var(--primary)]"
               >
-                <CreditCard className="w-4 h-4 mr-2" />
+                <CreditCard className="w-4 h-4 mr-1.5 sm:mr-2" />
                 Billing
               </TabsTrigger>
             </TabsList>
