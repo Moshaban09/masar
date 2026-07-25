@@ -124,19 +124,25 @@ export interface AppNotification {
 
 ---
 
-## 3. Mock Database & LocalStorage Persistence (Zustand)
+## 3. Local Database & LocalStorage Persistence (Zustand)
 
-To provide a fully interactive prototype where buttons actually work (adding tasks, updating projects, editing settings, logging in/out) without a backend, we recommend using **Zustand's persistence middleware (`persist`)**. This stores the state in `localStorage` so edits survive page refreshes.
+To provide a fully interactive system where buttons actually work (adding tasks, updating projects, editing settings, logging in/out) without a backend, we use **Zustand's persistence middleware (`persist`)**. This stores the state in `localStorage` so edits survive page refreshes and functions as a fast local database.
 
-### 📁 Persistent Workspace Database Store (`store/useWorkspace.ts`)
-Manages all active projects, tasks, members, and activity. Seeded with the default mock data on first load.
+### 📁 Persistent Workspace Database Store (`store/useWorkspace.ts` & Slices)
+Manages all active projects, tasks, members, and activity. Seeded with the default initial data on first load. The store is modularized using the **Zustand Slices Pattern** for clean architecture:
+* **Slices**:
+  * `createWorkspaceSlice`: Manages active workspace and global activities.
+  * `createProjectSlice`: Manages projects.
+  * `createTaskSlice`: Manages tasks and subtasks.
+  * `createMemberSlice`: Manages team members.
+  * `createNotificationSlice`: Manages in-app notifications.
 * **State Managed**:
   * `projects`: `Project[]`
   * `tasks`: `Task[]`
   * `members`: `Member[]`
   * `activities`: `Activity[]`
   * `activeWorkspaceId`: `string` (default: `"w1"`)
-* **Zustand Store Actions (Mock Logic)**:
+* **Zustand Store Actions (State Logic)**:
   * `addProject(project)`: Generates a new project under the current `activeWorkspaceId` with counters initialized at 0.
   * `addTask(task)`: Inserts a new task under the active workspace, increments the parent project's total task counter, and updates progress percentages.
   * `toggleTaskStatus(taskId)`: Toggles task status between `todo` and `done`, updating the parent project's completed count and progress percentage accordingly.
@@ -150,7 +156,7 @@ Manages all active projects, tasks, members, and activity. Seeded with the defau
   * `addTaskComment(taskId, memberName, avatar, body)`: Appends a comment to the task's thread and pushes a comment creation action to the activities feed.
 
 ### 🔑 Persistent Authentication Store (`store/useAuth.ts`)
-Handles mock authentication. Valid credentials: `ava@masar.io` (password can be anything). It manages:
+Handles local authentication. Valid credentials: `ava@masar.io` (password can be anything). It manages:
 * `user`: `{ id: string; email: string; name: string; avatar: string; plan: 'free' | 'pro'; accentColor: AccentColor } | null`
 * `isAuthenticated`: `boolean`
 * `isInitialized`: `boolean`
@@ -233,7 +239,7 @@ Uses a shared structural authentication layout (`AuthLayout.tsx` which handles t
       * Email (placeholder: `you@company.com`).
       * Password (placeholder: `Min 6 characters`).
       * Workspace Name (placeholder: `e.g. Acme Corp`).
-    * **Submit Button**: Sign up button (`bg-[var(--primary)] hover:bg-[var(--primary-dark)]`). Mock signs up, creates user workspace, and routes to `/dashboard`.
+    * **Submit Button**: Sign up button (`bg-[var(--primary)] hover:bg-[var(--primary-dark)]`). Signs up, creates user workspace, and routes to `/dashboard`.
     * **Link at bottom**: "Already have an account? Sign in" (redirects to `/`).
   * **Forgot Password Screen (`ForgotPassword.tsx` @ `/forgot-password`)**:
     * Minimalist brand logo with name `Masar`.
@@ -250,16 +256,16 @@ Uses a shared structural authentication layout (`AuthLayout.tsx` which handles t
 ---
 
 ### 📊 Page 2: Dashboard Layout (`Dashboard.tsx` @ `/dashboard`)
-The central hub displaying metrics, charts, and workloads. Values are filtered dynamically by the active workspace:
-* **KPI Metrics Row**: 4 cards displaying:
+The central hub displaying metrics, charts, and workloads. Values are filtered dynamically by the active workspace. The layout is cleanly split into sub-components for better maintainability:
+* **KPI Metrics Row (`DashboardMetrics.tsx`)**: 4 cards displaying:
   1. *Active Projects*: e.g., "6" (`+2 vs last month`).
   2. *Tasks Completed*: e.g., "148" (`+18% this week`).
   3. *Team Velocity*: e.g., "32" (`+4 pts/sprint`).
   4. *Overdue Tasks*: e.g., "3" (`-2 vs last week`).
-* **Charts Grid**:
+* **Charts Grid (`DashboardCharts.tsx`)**:
   * *Project Progress Chart*: Recharts Area Chart displaying Completed vs Planned tasks over time. Linear gradient fill using `var(--primary)` for completed and slate tones for planned.
   * *Task Status Donut Chart*: Pie chart demonstrating task distribution across status states (To Do, In Progress, In Review, Done).
-* **Information Feed Grid**:
+* **Information Feed Grid (`DashboardFeed.tsx`)**:
   * *Recent Projects List*: Grid of cards containing project name, progress bar, and member avatars.
   * *Upcoming Deadlines*: Due tasks sorted by urgency with countdown badges (e.g. "Tomorrow", "In 2 days").
   * *Recent Tasks List*: Log of recently modified tasks.
@@ -268,7 +274,7 @@ The central hub displaying metrics, charts, and workloads. Values are filtered d
 
 ---
 
-### 📁 Page 3: Projects Page (`Projects.tsx` @ `/projects`)
+### 📁 Page 3: Projects Page (`ProjectsList.tsx` @ `/projects`)
 The project portfolio list:
 * **Header**: Page title with action button "New Project" (`bg-[var(--primary)]`).
 * **Control Bar**: Search input (`Search` icon, slate border) and status tabs filtering projects by status (`All`, `Active`, `Completed`, `On Hold`, `Planning`).
@@ -278,20 +284,20 @@ The project portfolio list:
 ---
 
 ### 🔍 Page 4: Project Details (`ProjectDetails.tsx` @ `/projects/:id`)
-Detailed view for a single project:
+Detailed view for a single project, utilizing a clean Tabbed interface:
 * **Header**: Project name, custom category color indicator, and back to projects link.
 * **Layout**:
-  * *Left Column (Task board/list)*: Tasks associated with the current project, grouped by status (To Do, In Progress, Review, Done).
-  * *Right Column (Metadata)*: Project description, timeline progress, team directory list, and target completion date.
+  * *Overview Tab (`ProjectOverviewTab.tsx`)*: Project description, timeline progress, team directory list, and target completion date.
+  * *Tasks Tab (`ProjectTasksTab.tsx`)*: Tasks associated with the current project, grouped by status.
 
 ---
 
 ### 📋 Page 5: Tasks Page (`Tasks.tsx` @ `/tasks`)
-A high-density list optimized for daily workflows:
+A high-density list optimized for daily workflows, explicitly split into two dedicated views:
 * **Search & Filters**: Search field, and tab filters matching task status (`To Do`, `In Progress`, `Review`, `Done`). Toggle to switch between List View and Kanban Board View.
-* **Tasks Table / Kanban columns**:
-  * *List*: Title, Project Name, Due Date, Assignee, Priority badge, and Status badge. Sorted by priority and filterable by assignee.
-  * *Kanban*: Columns for Todo, In-progress, Review, and Done. Move cards by Drag & Drop to update task statuses instantly.
+* **Tasks Views**:
+  * *List View (`TasksList.tsx`)*: Title, Project Name, Due Date, Assignee, Priority badge, and Status badge. Sorted by priority and filterable by assignee.
+  * *Kanban View (`TasksKanban.tsx`)*: Columns for Todo, In-progress, Review, and Done. Move cards by Drag & Drop to update task statuses instantly.
 
 ---
 
@@ -306,8 +312,8 @@ Directory highlighting member availability, capacity, and inviting:
 ---
 
 ### 📅 Page 7: Calendar Page (`Calendar.tsx` @ `/calendar`)
-A monthly planner view:
-* **Interface**: Standard calendar layout grid showing days of the current month.
+A modular planner view with dual grid options:
+* **Interface**: Users can toggle between a full **Month Grid (`MonthGrid.tsx`)** and a more granular **Week Grid (`WeekGrid.tsx`)**.
 * **Tapping Interactions**: Clicking any empty date cell directly opens the Add Task modal, pre-filling its due date field with the selected day's date.
 * **Deadlines**: Renders small badges for tasks on their respective due dates (labeled with task title and styled by priority colors).
 
@@ -369,13 +375,15 @@ Navigation should feel instant, smooth, and predictable.
    * *Secondary*: White background, slate border, dark slate text.
    * *Destructive*: Red background, white text.
 4. **Sidebar Component (`Sidebar.tsx`)**: Vertical navigation panel with `NavLink` items, logo section, active routes styled with light slate backgrounds, and a minimized plan upgrade prompt at the bottom. Includes the workspace switching dropdown.
-5. **Topbar Component (`Topbar.tsx`)**: Layout banner showing site hierarchy breadcrumbs, search input (which triggers CMD+K when clicked), notification bell with unread indicator badge, and user profile avatar.
+5. **Topbar Component (`Topbar.tsx`)**: Layout banner showing site hierarchy breadcrumbs and search input (which triggers CMD+K when clicked). Profile and Notifications are modularized into independent components for cleanliness:
+   * *UserDropdown (`UserDropdown.tsx`)*: Handles user avatar display, profile shortcuts, and logout actions.
+   * *NotificationsDropdown (`NotificationsDropdown.tsx`)*: Handles the notification bell, dynamic unread indicator badge, and dropdown alerts list.
 
 ---
 
-## 9. Interactive Platform Actions & Active Mocking
+## 9. Interactive Platform Actions
 
-Every button and interaction in the prototype is fully functional via local state mutation. Changes persist across browser refreshes via `localStorage`.
+Every button and interaction in the system is fully functional via local state mutation. Changes persist across browser refreshes via `localStorage`.
 
 ### 👤 Profile & Settings Mutation (`Settings.tsx` & `store/useAuth.ts`)
 * **Personal Info Editing**: Users can edit their profile info (Name, Email, Avatar) on the Settings page (`Settings.tsx`).
@@ -383,7 +391,7 @@ Every button and interaction in the prototype is fully functional via local stat
 * **Password Modification (Security)**: Logged-in users can update their password under the security tab on the settings page.
   * *UX Flow*: The form requires the user to input their **Old Password**, **New Password**, and **Confirm Password**.
   * *State Validation*: The submission logic verifies that the entered Old Password matches their current session password.
-  * *Mock Behavior*: If the Old Password is correct, it updates the stored password in Zustand, resets form inputs, and fires a success Sonner toast: `"Password updated successfully!"`. If the Old Password is incorrect, it displays an inline form validation error: `"Incorrect old password"`.
+  * *Behavior*: If the Old Password is correct, it updates the stored password in Zustand, resets form inputs, and fires a success Sonner toast: `"Password updated successfully!"`. If the Old Password is incorrect, it displays an inline form validation error: `"Incorrect old password"`.
 * **Settings & Preferences**: Users can toggle settings (e.g. notifications feed options, default workspace name), mutating the local state.
 
 ### ⚡ Interactive UI Button Actions
@@ -396,7 +404,7 @@ All buttons trigger specific state mutations:
 * **Mark Notifications as Read**: Clicking a notification toggles its `read` boolean. Clicking "Mark all as read" updates all entries, clearing the unread indicator dot in the Topbar.
 * **Live Activity Logging**: Whenever any modification occurs (e.g., adding a task, completing a project, inviting a team member), the state actions automatically append a new `Activity` object to the timeline. This instantly updates the Dashboard's Activity Timeline feed, mimicking a live, active production workspace.
 
-### 🌟 Fully Functional Premium Systems (Active Mocking)
+### 🌟 Fully Functional Premium Systems
 These systems must be **fully active and operational** via state logic, rather than static UI placeholders:
 
 1. **Interactive Command Palette (`CMD + K`)**:
@@ -437,50 +445,80 @@ Every file must have a single responsibility. We use a **Folder-per-Page** struc
 
 ```
 src/
-├── assets/             # Global CSS, brand icons, and static assets
-├── components/         # Global shared UI components
-│   ├── ui/             # Headless radix primitives (Button.tsx, Card.tsx, Badge.tsx)
-│   ├── layout/         # Structural wrappers (Sidebar.tsx, Topbar.tsx, AppLayout.tsx)
-│   └── routes/         # Router guards (ProtectedRoute.tsx, PublicRoute.tsx)
-├── data/               # Default static seed data
-│   └── mockData.ts     # Initial seed database (projects, members, tasks)
-├── hooks/              # Global custom reusable React hooks
-├── pages/              # Encapsulated Page Folders
-│   ├── Auth/           # Authentication pages (Login, Signup, ForgotPassword, Layouts)
-│   │   ├── Login.tsx
-│   │   ├── Signup.tsx
-│   │   ├── ForgotPassword.tsx
-│   │   └── AuthLayout.tsx
-│   ├── Dashboard/      # Dashboard page and widgets (Dashboard, TeamWorkload, ProjectProgressChart)
-│   │   ├── Dashboard.tsx
-│   │   ├── TeamWorkload.tsx
-│   │   └── ProjectProgressChart.tsx
-│   ├── Projects/       # Projects list and modals (Projects, NewProjectModal)
-│   │   ├── Projects.tsx
-│   │   └── NewProjectModal.tsx
-│   ├── ProjectDetails/ # Detailed single-project views (ProjectDetails)
-│   │   └── ProjectDetails.tsx
-│   ├── Tasks/          # Tasks grid and filters (Tasks, TaskRow)
-│   │   ├── Tasks.tsx
-│   │   └── TaskRow.tsx
-│   ├── Team/           # Team members directory and invite modal (Team, InviteMemberModal)
-│   │   ├── Team.tsx
-│   │   └── InviteMemberModal.tsx
-│   ├── Calendar/       # Calendar grid (Calendar)
-│   │   └── Calendar.tsx
-│   ├── Notifications/  # Alerts feed (Notifications)
-│   │   └── Notifications.tsx
-│   └── Settings/       # Settings forms (Settings)
-│       └── Settings.tsx
-├── store/              # Zustand global states (useAuth, useWorkspace)
-│   ├── useAuth.ts      # Active session, theme switching, password changes
-│   └── useWorkspace.ts # Projects, tasks, comments, subtasks database
-├── types/              # Type-safe TypeScript interfaces
-│   └── index.ts        # Core type definitions
-├── utils/              # Pure utility functions (formatting, dates)
 ├── App.tsx             # Application router, Shell Layout, and global providers
 ├── index.css           # Tailwind CSS variable directives
-└── main.tsx            # DOM root mounting
+├── main.tsx            # DOM root mounting
+├── assets/             # Global CSS, brand icons, and static assets
+├── components/         # Global shared UI components
+│   ├── ActivityTimeline.tsx
+│   ├── CommandPalette.tsx
+│   ├── layout/         # Structural wrappers
+│   │   ├── AppLayout.tsx
+│   │   ├── NotificationsDropdown.tsx
+│   │   ├── Sidebar.tsx
+│   │   ├── Topbar.tsx
+│   │   └── UserDropdown.tsx
+│   ├── routes/         # Router guards
+│   │   ├── ProtectedRoute.tsx
+│   │   └── PublicRoute.tsx
+│   └── ui/             # Headless radix primitives (avatar, badge, button, etc.)
+├── lib/
+│   └── utils.ts        # Tailwind merging and generic helpers
+├── pages/              # Encapsulated Page Folders
+│   ├── Auth/
+│   │   ├── AuthLayout.tsx
+│   │   ├── ForgotPassword.tsx
+│   │   ├── Login.tsx
+│   │   └── Signup.tsx
+│   ├── Calendar/
+│   │   ├── Calendar.tsx
+│   │   ├── MonthGrid.tsx
+│   │   └── WeekGrid.tsx
+│   ├── Dashboard/
+│   │   ├── Dashboard.tsx
+│   │   ├── DashboardCharts.tsx
+│   │   ├── DashboardFeed.tsx
+│   │   └── DashboardMetrics.tsx
+│   ├── NotFound/
+│   │   └── NotFound.tsx
+│   ├── Notifications/
+│   │   └── Notifications.tsx
+│   ├── Projects/
+│   │   ├── NewProjectModal.tsx
+│   │   ├── ProjectCard.tsx
+│   │   ├── ProjectDetails.tsx
+│   │   ├── ProjectOverviewTab.tsx
+│   │   ├── ProjectsList.tsx
+│   │   └── ProjectTasksTab.tsx
+│   ├── Settings/
+│   │   └── Settings.tsx
+│   ├── Tasks/
+│   │   ├── KanbanCard.tsx
+│   │   ├── KanbanColumn.tsx
+│   │   ├── NewTaskModal.tsx
+│   │   ├── TaskComments.tsx
+│   │   ├── TaskDetailsModal.tsx
+│   │   ├── Tasks.tsx
+│   │   ├── TasksKanban.tsx
+│   │   ├── TasksList.tsx
+│   │   └── TaskSubtasks.tsx
+│   └── Team/
+│       ├── InviteMemberModal.tsx
+│       └── Team.tsx
+├── store/              # Zustand global states
+│   ├── useAuth.ts
+│   ├── useWorkspace.ts
+│   └── slices/         # Modular Zustand Slices
+│       ├── createMemberSlice.ts
+│       ├── createNotificationSlice.ts
+│       ├── createProjectSlice.ts
+│       ├── createTaskSlice.ts
+│       ├── createWorkspaceSlice.ts
+│       └── types.ts
+├── types/              # Type-safe TypeScript interfaces
+│   └── index.ts
+└── utils/              # Pure utility functions
+    └── dateUtils.ts
 ```
 
 ### 📏 File Splitting & Code Quality Standards
@@ -488,7 +526,7 @@ src/
 * **Folder-per-Page encapsulation (Recommended)**: Create a folder for each page. Any component, utility, or type that is ONLY used by that page must live inside its respective page folder. If it is reused across 2 or more pages, move it to the global `components/`, `utils/`, or `types/` directories. This prevents global folders from becoming bloated.
 * **Single Responsibility Principle**: One file, one export, one job. Keep logical operations separated from UI presentation.
 * **Component Size Constraints**: No component file should exceed **150 lines of code**. If it gets larger, it must be broken down into local sub-components inside its page folder.
-* **State & Action separation**: Avoid placing complex mock logic or calculations in component render loops. Write them as state actions inside the Zustand store (`store/useWorkspace.ts`) or wrap them in custom react hooks (`hooks/`).
+* **State & Action separation**: Avoid placing complex state logic or calculations in component render loops. Write them as state actions inside the Zustand store (`store/useWorkspace.ts`) or wrap them in custom react hooks (`hooks/`).
 * **Imports Order**: Organize imports cleanly to improve readability:
   1. React & external npm packages.
   2. Router, stores, and hooks.
@@ -502,22 +540,23 @@ src/
 This stack ensures high performance, clean structures, typescript safety, and follows current production-ready best practices.
 
 ### 🛠️ Core Infrastructure
-* **React 19.0.0**: Uses the latest React compiler features and improved hook ergonomics.
-* **Vite 6.0.0**: Blazing-fast Single Page Application (SPA) building and dev server tools.
-* **TypeScript 5.x**: Explicit types for data fetching, components, and state management.
+* **React 19.x**: Uses the latest React features and hooks for high performance.
+* **Vite 8.x**: Blazing-fast Single Page Application (SPA) building and dev server tools.
+* **TypeScript 6.x**: Explicit types for data fetching, components, and state management.
 
 ### 🎨 Styling & Component Libraries
 * **Tailwind CSS v4.0**: The newest version of Tailwind CSS. Relies on native CSS variables, simplifies builds, and removes massive configuration files.
 * **Radix UI Primitives (Radix UI / shadcn/ui)**: Radix provides headless, WAI-ARIA compliant components (modals, dropdowns, popovers) which are styled locally with Tailwind. Highly recommended to build custom widgets quickly.
-* **Lucide React (v0.x)**: Comprehensive and lightweight iconography matching the design system of Linear + Raycast.
+* **Lucide React**: Comprehensive and lightweight iconography matching the design system of Linear + Raycast.
 
 ### 📦 Logic & State Management
-* **Zustand (v5.0.0)**: A minimal, fast, and scalable bear-bone state management library. Bypasses Redux boilerplate and renders efficiently.
-* **TanStack Query v5 (React Query)**: Standard for client-side asynchronous data caching, query synchronization, mutations, and smart loading states.
-* **React Hook Form (v7.x)** & **Zod (v3.x)**: Form controller combined with schemas to ensure front-end validation is fully type-safe and declarative.
-* **date-fns (v4.0.0)**: Modern, lightweight modular utility functions for formatting and counting task due dates.
+* **Zustand (v5.x)**: Modularized state management using Slices Pattern and LocalStorage persistence. Bypasses Redux boilerplate and renders efficiently.
+* **React Router v7**: The latest routing definitions and standard hooks for deep linking and protected routes.
+* **React Hook Form (v7.x)** & **Zod (v4.x)**: Form controller combined with schemas to ensure front-end validation is fully type-safe and declarative.
+* **@dnd-kit (v10)**: Core drag-and-drop primitives used for the Kanban board view.
+* **date-fns (v4.x)**: Modern, lightweight modular utility functions for formatting and counting task due dates.
 * **Sonner**: An elegant, accessible, and fast toast notification library that fits cleanly into the viewport corner.
-* **Recharts (v2.15.0)**: Declarative React chart components built on SVG, styled with Tailwind Slate/Emerald tokens for smooth custom tooltips.
+* **Recharts (v3.x)**: Declarative React chart components built on SVG, styled with Tailwind Slate/Emerald tokens for smooth custom tooltips.
 
 ---
 
@@ -534,15 +573,11 @@ To keep development fast, highly readable, and easily maintainable, the codebase
 
 ## 13. Scalability & Performance Best Practices
 
-The blueprint is built to seamlessly scale from a mock prototype to a production application backed by a real database:
+The blueprint is built to seamlessly scale from a local client-side application to a production application backed by a real database:
 
-* **Lazy Loading & Code Splitting**: Inside `App.tsx`, route entries are loaded using React `lazy()` and wrapped in a `<Suspense>` boundary. This ensures that the initial Javascript bundle size remains tiny, and pages are only downloaded by the browser when the user navigates to them:
-  ```typescript
-  import { lazy, Suspense } from 'react';
-  const Dashboard = lazy(() => import('./pages/Dashboard/Dashboard'));
-  ```
+
 * **Relational Data Normalization**: Entities refer to each other by ID, not by nesting full objects. For example:
   * A `Task` contains an `assigneeId: string` and `projectId: string`.
   * To render details, the UI resolves these relations at render time (e.g., using a quick lookup function like `memberById(id)`).
-  * This structure directly mirrors database relations, making it trivial to replace the Zustand mock stores with real API queries (using TanStack Query `fetch` calls) when transitioning to a production database.
+  * This structure directly mirrors database relations, making it trivial to replace the Zustand local stores with real API queries (using TanStack Query `fetch` calls) when transitioning to a remote production database.
 * **Type-Safe Strict Mode**: All code files must use explicit TypeScript types (zero use of `any` or `unknown`). All props must have defined interfaces, which prevents runtime crashes.
