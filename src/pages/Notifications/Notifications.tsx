@@ -1,6 +1,6 @@
 import { useWorkspace } from '../../store/useWorkspace';
 import { Bell, Clock, CalendarDays, UserPlus } from 'lucide-react';
-import { formatRelativeTime } from '../../lib/dateUtils';
+import { formatRelativeTime } from '../../utils/dateUtils';
 
 export function Notifications() {
   const { notifications, markNotificationRead } = useWorkspace();

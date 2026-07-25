@@ -2,7 +2,7 @@ import { useWorkspace } from '../../store/useWorkspace';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Badge } from '../../components/ui/badge';
 import { CheckCircle2, Clock, MessageSquare, Plus, Edit } from 'lucide-react';
-import { formatRelativeTime } from '../../lib/dateUtils';
+import { formatRelativeTime } from '../../utils/dateUtils';
 import { isAfter, subDays, startOfDay, subMonths } from 'date-fns';
 
 export function DashboardFeed({ period = 'week' }: { period?: 'today' | 'week' | 'month' }) {

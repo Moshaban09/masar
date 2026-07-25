@@ -13,7 +13,7 @@ export function formatRelativeTime(isoString: string | undefined): string {
     }
     
     return formatDistanceToNow(date, { addSuffix: true });
-  } catch (e) {
+  } catch {
     return isoString;
   }
 }
@@ -32,7 +32,7 @@ export function formatDateTime(isoString: string | undefined): string {
     } else {
       return format(date, 'MMM d, yyyy, h:mm a');
     }
-  } catch (e) {
+  } catch {
     return isoString;
   }
 }
