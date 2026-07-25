@@ -3,17 +3,23 @@ import { AppLayout } from './components/layout/AppLayout';
 import { ProtectedRoute } from './components/routes/ProtectedRoute';
 import { PublicRoute } from './components/routes/PublicRoute';
 
-// We will import pages here as we build them
-// import { Login } from './pages/Auth/Login';
-// import { Dashboard } from './pages/Dashboard/Dashboard';
+import { AuthLayout } from './pages/Auth/AuthLayout';
+import { Login } from './pages/Auth/Login';
+import { Signup } from './pages/Auth/Signup';
+import { ForgotPassword } from './pages/Auth/ForgotPassword';
+import { Toaster } from './components/ui/sonner';
 
 const router = createBrowserRouter([
   {
     element: <PublicRoute />,
     children: [
       {
-        path: '/',
-        element: <div className="p-8">Login Page (Coming in Phase 3)</div>,
+        element: <AuthLayout />,
+        children: [
+          { path: '/', element: <Login /> },
+          { path: '/signup', element: <Signup /> },
+          { path: '/forgot-password', element: <ForgotPassword /> },
+        ]
       },
     ],
   },
@@ -62,5 +68,10 @@ const router = createBrowserRouter([
 ]);
 
 export default function App() {
-  return <RouterProvider router={router} />;
+  return (
+    <>
+      <RouterProvider router={router} />
+      <Toaster position="top-center" richColors />
+    </>
+  );
 }
