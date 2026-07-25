@@ -1,7 +1,11 @@
 import { Outlet } from 'react-router-dom';
 import { Hexagon } from 'lucide-react';
+import { useEffect } from 'react';
 
 export function AuthLayout() {
+  useEffect(() => {
+    document.title = 'Masar';
+  }, []);
   return (
     <div className="flex h-screen w-full bg-white text-slate-900">
       {/* Left Panel - Auth Forms */}
