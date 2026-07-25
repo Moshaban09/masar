@@ -74,7 +74,7 @@ export const useAuth = create<AuthState>()(
         return { user: { ...state.user, avatar } };
       }),
 
-      updatePassword: async (oldPass, _newPass) => {
+      updatePassword: async (oldPass) => {
         await new Promise((resolve) => setTimeout(resolve, 500));
         // Accept any password for the mock demo as long as it's provided
         if (oldPass && oldPass.length > 0) {
