@@ -1,11 +1,11 @@
-import { NavLink } from 'react-router-dom';
+import { Link, NavLink } from 'react-router-dom';
 import { LayoutDashboard, FolderKanban, CheckSquare, Users, CalendarDays, Settings, Bell } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { useAuth } from '../../store/useAuth';
 
 export function Sidebar({ className }: { className?: string }) {
   const { user } = useAuth();
-  
+
   const navItems = [
     { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
     { name: 'Projects', path: '/projects', icon: FolderKanban },
@@ -23,10 +23,10 @@ export function Sidebar({ className }: { className?: string }) {
     )}>
       {/* Brand */}
       <div className="h-16 flex items-center px-6 border-b border-slate-200 shrink-0">
-        <div className="flex items-center gap-2 text-slate-900 font-semibold text-lg">
+        <Link to="/dashboard" className="flex items-center gap-2 text-slate-900 font-semibold text-lg hover:opacity-80 transition-opacity">
           <img src="/favicon.svg" alt="Masar Logo" className="w-6 h-6" />
           Masar
-        </div>
+        </Link>
       </div>
 
       {/* Navigation */}
@@ -36,10 +36,9 @@ export function Sidebar({ className }: { className?: string }) {
             key={item.name}
             to={item.path}
             className={({ isActive }) =>
-              `flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                isActive
-                  ? 'bg-slate-100 text-slate-900'
-                  : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50'
+              `flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${isActive
+                ? 'bg-slate-100 text-slate-900'
+                : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50'
               }`
             }
           >

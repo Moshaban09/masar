@@ -44,7 +44,7 @@ export function Settings() {
   const handleRemoveAvatar = () => {
     if (!user) return;
     const userName = user.name || user.email.split('@')[0];
-    const defaultAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(userName)}&background=059669&color=fff`;
+    const defaultAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(userName)}&background=4f46e5&color=fff`;
     updateAvatar(defaultAvatar);
     toast.success('Avatar removed successfully');
   };

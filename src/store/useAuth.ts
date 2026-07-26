@@ -41,7 +41,7 @@ export const useAuth = create<AuthState>()(
         // Mock validation
         if (email && password) {
           const userName = name || email.split('@')[0];
-          const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(userName)}&background=059669&color=fff`;
+          const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(userName)}&background=4f46e5&color=fff`;
 
           set({
             user: {
@@ -50,20 +50,21 @@ export const useAuth = create<AuthState>()(
               name: userName,
               avatar: avatarUrl,
               plan: 'free',
-              accentColor: 'emerald'
+              accentColor: 'indigo'
             },
             isAuthenticated: true,
             isInitialized: true
           });
           
           // Apply theme color
-          document.documentElement.style.setProperty('--primary', `var(--color-emerald-600)`);
+          document.documentElement.style.setProperty('--primary', `#4F46E5`);
           return true;
         }
         return false;
       },
 
       logout: () => {
+        document.documentElement.style.removeProperty('--primary');
         set({ user: null, isAuthenticated: false });
       },
 
@@ -72,7 +73,7 @@ export const useAuth = create<AuthState>()(
         
         let newAvatar = state.user.avatar;
         if (newAvatar.includes('ui-avatars.com')) {
-          newAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(name || email.split('@')[0])}&background=059669&color=fff`;
+          newAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(name || email.split('@')[0])}&background=4f46e5&color=fff`;
         }
         
         return { user: { ...state.user, name, email, avatar: newAvatar } };

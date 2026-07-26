@@ -54,7 +54,7 @@ export function ForgotPassword() {
       </form>
 
       <p className="text-center text-sm mt-4">
-        <Link to="/" className="text-slate-500 hover:text-slate-900 font-medium transition-colors">
+        <Link to="/login" className="text-slate-500 hover:text-slate-900 font-medium transition-colors">
           &larr; Back to sign in
         </Link>
       </p>

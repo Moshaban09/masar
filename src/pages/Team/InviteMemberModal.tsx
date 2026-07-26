@@ -35,7 +35,7 @@ export function InviteMemberModal({ isOpen, onClose }: Props) {
       name: data.email.split('@')[0],
       email: data.email,
       role: data.role,
-      avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(data.email.split('@')[0])}&background=059669&color=fff`,
+      avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(data.email.split('@')[0])}&background=4f46e5&color=fff`,
       status: 'offline',
       capacity: 10,
     });

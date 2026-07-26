@@ -46,7 +46,7 @@ export function Topbar() {
           <BreadcrumbList>
             <BreadcrumbItem>
               <BreadcrumbLink asChild>
-                <Link to="/">Masar</Link>
+                <Link to="/dashboard">Masar</Link>
               </BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />

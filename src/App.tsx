@@ -5,7 +5,7 @@ import { ProtectedRoute } from './components/routes/ProtectedRoute';
 import { PublicRoute } from './components/routes/PublicRoute';
 import { Toaster } from './components/ui/sonner';
 
-// Lazy loaded routes (Code Splitting)
+const Home = lazy(() => import('./pages/Home/Home').then(m => ({ default: m.Home })));
 const AuthLayout = lazy(() => import('./pages/Auth/AuthLayout').then(m => ({ default: m.AuthLayout })));
 const Login = lazy(() => import('./pages/Auth/Login').then(m => ({ default: m.Login })));
 const Signup = lazy(() => import('./pages/Auth/Signup').then(m => ({ default: m.Signup })));
@@ -22,13 +22,15 @@ const Settings = lazy(() => import('./pages/Settings/Settings').then(m => ({ def
 const NotFound = lazy(() => import('./pages/NotFound/NotFound').then(m => ({ default: m.NotFound })));
 
 const router = createBrowserRouter([
+  { path: '/', element: <Home /> },
+  { path: '/home', element: <Home /> },
   {
     element: <PublicRoute />,
     children: [
       {
         element: <AuthLayout />,
         children: [
-          { path: '/', element: <Login /> },
+          { path: '/login', element: <Login /> },
           { path: '/signup', element: <Signup /> },
           { path: '/forgot-password', element: <ForgotPassword /> },
         ]

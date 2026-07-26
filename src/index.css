@@ -168,4 +168,24 @@
     border: 2px solid transparent;
     background-clip: padding-box;
   }
+  .animate-in {
+    animation-fill-mode: both;
+  }
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(calc(-50% - 1rem));
+  }
+}
+
+.animate-marquee {
+  animation: marquee 40s linear infinite;
+}
+
+.animate-marquee:hover {
+  animation-play-state: paused;
 }
